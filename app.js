@@ -146,7 +146,7 @@ function getNumberAttributes(number) {
 
 // 根据颜色类别返回 CSS 类名
 function getClassForColor(color) {
-  switch(color) {
+  switch (color) {
     case '红波':
       return 'redBoClass';
     case '蓝波':
@@ -264,6 +264,7 @@ app.get('/number-info/:number', authenticateToken, (req, res) => {
 });
 
 // 添加开奖结果 - 处理所有区域
+// 添加开奖结果 - 处理所有区域
 app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
   let { period, numbers, drawTime } = req.body;
   const sectionId = req.params.sectionId; // 获取区域ID
@@ -289,12 +290,21 @@ app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
         ...record,
         numbers: JSON.parse(record.numbers)
       }));
-      res.render('dashboard', { 
-        error: '请填写完整的信息，并确保提交了7个号码', 
-        records, 
-        csrfToken: req.csrfToken() 
+      res.render('dashboard', {
+        error: '请填写完整的信息，并确保提交了7个号码',
+        records,
+        csrfToken: req.csrfToken()
       });
     });
+  }
+
+  // 将 drawTime 转换为 UTC ISO 字符串
+  let drawTimeUTC;
+  try {
+    drawTimeUTC = new Date(drawTime).toISOString();
+  } catch (e) {
+    console.error('Invalid drawTime format:', e);
+    return res.status(400).send('无效的 drawTime 格式');
   }
 
   const numbersWithAttributes = numbersArray.map(num => getNumberAttributes(num));
@@ -302,8 +312,8 @@ app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
   // 在数据库中存储区域信息
   db.run(
     'INSERT INTO records (period, numbers, drawTime, section) VALUES (?, ?, ?, ?)',
-    [period, JSON.stringify(numbersWithAttributes), drawTime, sectionId],
-    function(err) {
+    [period, JSON.stringify(numbersWithAttributes), drawTimeUTC, sectionId],
+    function (err) {
       if (err) {
         console.error('数据库写入失败:', err);
         return res.status(500).send('数据库写入失败');
@@ -314,6 +324,7 @@ app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
   );
 });
 
+
 // 删除记录的路由
 app.post('/delete-record', authenticateToken, (req, res) => {
   const { id } = req.body;
@@ -323,7 +334,7 @@ app.post('/delete-record', authenticateToken, (req, res) => {
     return res.status(400).send('删除请求缺少记录ID');
   }
 
-  db.run('DELETE FROM records WHERE id = ?', [id], function(err) {
+  db.run('DELETE FROM records WHERE id = ?', [id], function (err) {
     if (err) {
       console.error(`删除记录失败: ${err.message}`);
       return res.status(500).send('删除记录失败');
@@ -339,6 +350,7 @@ app.post('/delete-record', authenticateToken, (req, res) => {
   });
 });
 
+// 最新开奖结果的 API 端点
 // 最新开奖结果的 API 端点
 app.get('/latest-result', (req, res) => {
   const section = req.query.section || '1'; // 默认分类为 1
@@ -364,11 +376,13 @@ app.get('/latest-result', (req, res) => {
 
       let countdownTime;
       if (nextRow) {
-        countdownTime = nextRow.drawTime;
+        countdownTime = new Date(nextRow.drawTime).getTime(); // 转换为时间戳
+        console.log('下一期开奖时间:', new Date(nextRow.drawTime).toLocaleString());
       } else {
         // 如果没有下一期开奖时间，设置一个默认值（例如1小时后）
-        let defaultNextTime = new Date(currentTime.getTime() + 3600000); // 1小时后
-        countdownTime = defaultNextTime.toISOString();
+        let defaultNextTime = new Date(currentTime.getTime() + 24 * 3600 * 1000); // 24小时后
+        countdownTime = defaultNextTime.getTime();
+        console.log('默认下一期开奖时间:', defaultNextTime.toLocaleString());
       }
 
       let numbersWithAttributes = [];
@@ -393,23 +407,26 @@ app.get('/latest-result', (req, res) => {
       res.json({
         current: {
           period: currentRecord.period,
-          drawTime: currentRecord.drawTime,
+          drawTime: new Date(currentRecord.drawTime).getTime(), // 转换为时间戳
           data: data
         },
         countdown: countdownTime,
-        serverTime: currentTime.toISOString().replace('T', ' ').substr(0, 19)
+        serverTime: currentTime.getTime() // 发送时间戳
       });
     });
   });
 });
 
-// 获取指定分类的历史记录
+
 // 获取指定分类的历史记录
 app.get('/history', (req, res) => {
   const section = req.query.section || '1'; // 默认分类为 1
 
-  // 查询指定分类的所有记录，按期数降序排列
-  db.all('SELECT * FROM records WHERE section = ? ORDER BY period DESC', [section], (err, rows) => {
+  // 获取当前服务器时间，格式为 UTC ISO 字符串
+  const currentTime = new Date().toISOString();
+
+  // 查询指定分类的所有已开奖的记录，按 drawTime 降序排列
+  db.all('SELECT * FROM records WHERE section = ? AND drawTime <= ? ORDER BY drawTime DESC', [section, currentTime], (err, rows) => {
     if (err) {
       console.error('查询历史记录失败:', err.message);
       return res.status(500).json({ error: '查询历史记录失败' });
@@ -447,6 +464,7 @@ app.get('/history', (req, res) => {
     res.json({ records });
   });
 });
+
 
 
 
