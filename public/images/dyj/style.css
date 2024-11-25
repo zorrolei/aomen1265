@@ -1,0 +1,192 @@
+@charset "utf-8";
+/* CSS Document */
+*{ margin: 0; padding: 0; font-size: 100%;}
+/* html { background: url(http://xin1265.com/images/bg.jpg) top center no-repeat #a49579; background-size: 1920px auto; background-attachment: fixed;} */
+body { width: 100%; max-width: 800px; min-height: 100vh; margin: 0 auto; line-height: 1.75; font-size: 16px; font-family: "微软雅黑"; word-break: break-all; word-wrap: break-word; border-left: solid 10px #5c1908; border-right: solid 10px #5c1908; background: #fff;}
+input, select, button, textarea { margin: 0; padding: 0; vertical-align: middle; font-size: 100%; color: inherit; border: 0; font-family: inherit; outline: none; resize: none;}
+input[type="text"] { -webkit-appearance: none;}
+ol, ul {list-style: none;}
+img { max-width: 100%; vertical-align: middle;}
+a { text-decoration: none; color: inherit;}
+:focus { outline: 0;}
+table {	border-collapse: collapse; border-spacing: 0;}
+
+.h10 { height: 10px; font-size: 0; line-height: 0; clear: both; background: #f5f5f5;}
+.h12 { height: 10px; font-size: 0; line-height: 0; clear: both; background: #eed0a2;}
+.clear { clear: both;}
+
+@media screen and (max-width:750px){ 
+body { font-size: 14px; padding: 0; border: 0;}
+.h10 { height: 6px;}
+.h12 { height: 6px;}
+}
+
+.toplogo {}
+.toplogo img { width: 100%; height: auto;}
+
+.nav { width: 100%; max-width: 800px; padding: 4px; box-sizing: border-box; text-align: center; background: url(http://xin1265.com/images/nav-bg.jpg) 0 0 repeat-x #ffeac5;}
+.nav ul { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;}
+.nav ul li { width: 20%; padding: 4px; box-sizing: border-box;}
+.nav ul li a { display: block; height: 32px; line-height: 32px; color: #fff; border-radius: 32px; background: #955412;}
+#nav[data-fixed="fixed"]{ box-shadow: 0 5px 10px rgba(0,0,0,.05); position: fixed; top:0; left: 0; right: 0; z-index: 9; margin: auto;}
+@media screen and (max-width:750px){
+.nav ul li { padding: 2px;}
+.nav ul li a { height: 26px; line-height: 26px; font-size: 13px; }
+}
+
+.ifrAo{ height: 190px; box-sizing: border-box;}
+@media screen and (max-width:800px) {
+.ifrAo{ height: 190px;}
+}
+@media screen and (max-width:650px) {
+.ifrAo{ height: 170px;}
+}
+@media screen and (max-width:500px) {
+.ifrAo{ height: 150px;}
+}
+@media screen and (max-width:450px) {
+.ifrAo{ height: 140px;}
+}
+@media screen and (max-width:400px) {
+.ifrAo{ height: 130px;}
+}
+
+.tit { height: 60px; line-height: 60px; color: #fff; font-weight: bold; font-size: 24px; text-align: center; border-bottom: solid 10px #955412; background: url(http://xin1265.com/images/tit.gif) top center no-repeat; background-size: auto 100%;}
+@media screen and (max-width:750px){
+.tit { height: 40px; line-height: 40px; color: #fff; font-weight: bold; font-size: 18px; text-align: center; border-bottom: solid 5px #955412;}
+}
+
+/*new 20210407*/
+.titBox{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px;
+}
+.tiTab{
+  font-size: 22px;
+  font-weight: bold;
+  height: 45px;
+  line-height: 45px;
+  text-align: center;
+  background: #fff;
+  flex: 0 0 49.5%;
+  cursor: pointer;
+}
+.titBox div{
+ font-size: 22px;
+ font-weight: bold;
+ height: 45px;
+ line-height: 45px;
+ text-align: center;
+ background: #fff;
+ flex: 0 0 49.5%;
+ cursor: pointer;
+ color: #000000;
+}
+.tiActive{
+  color: #fff;
+  background: #955412;
+}
+.titBox .hover{
+  color: #fff;
+  background: #955412;
+}
+.isshow{
+ display: none;
+}
+@media screen and (max-width:750px){
+.tiTab { height: 40px; line-height: 40px; color: #fff; font-weight: bold; font-size: 18px; text-align: center;}
+}
+
+.sbxztBox{
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+}
+.sbxztBox div{
+padding: 6px 0;
+text-align: center;
+color: #fff;
+font-size: 18px;
+background: #955412;
+cursor: pointer;
+flex: 0 0 20%;
+}
+.sbxztBox .hover{
+ background: #FFFFFF;
+ color: #000000;
+}
+
+.adpic {}
+.adpic img { width: 100%; height: auto;}
+
+#jpzl { display: flex; padding: 10px; background: #ffeac5;}
+#jpzl .Menubox { margin-right: 10px; text-align: center; font-weight: bold; font-size: 18px; color: #fff;}
+#jpzl .Menubox ul {}
+#jpzl .Menubox li { width: 200px; height: 60px; line-height: 58px; margin-top: 8px; cursor: pointer; background: url(http://xin1265.com/images/ds-tit.png) 0 0 no-repeat; background-size: 100% 100%;}
+#jpzl .Menubox li.hover { color: #ff0; background: url(http://xin1265.com/images/ds-tit2.png) 0 0 no-repeat; background-size: 100% 100%;}
+#jpzl .Menubox li:nth-child(1) { margin-top: 0;}
+#jpzl .Contentbox { display: flex; flex: 1; align-items: center; justify-content: center; height: 670px; padding: 40px; box-sizing: border-box; background: url(http://xin1265.com/images/ds-box.gif) top center no-repeat; background-size: 100% 100%;}
+#jpzl .Contentbox img { max-width: 100%; max-height: 590px; border-radius: 20px;}
+@media screen and (max-width:750px){ 
+#jpzl { padding: 5px;}
+#jpzl .Menubox { margin-right: 5px; font-size: 14px; font-weight: normal;}
+#jpzl .Menubox li { width: 110px; height: 33px; line-height: 31px; margin-top: 3px;}
+#jpzl .Contentbox { height: 355px; padding: 20px;}
+#jpzl .Contentbox img { max-height: 310px; border-radius: 10px;}
+}
+
+.footer { text-align: center; padding: 10px;}
+.footer1 { font-weight: bold;}
+.footer2 {}
+
+.gotop { width: 40px; height: 40px; border-radius: 50%; background: url(../gotop.png) center center no-repeat; background-size: 100% auto; position: fixed; right: 12px; bottom: 55px; z-index: 99;}
+
+/*----------------内页------------*/
+header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 800px; height: 50px; padding: 0 10px; box-sizing: border-box; color: #fff; background: linear-gradient(to top, #653403, #955412); position: fixed; left: 0; right: 0; top: 0; margin: auto; z-index: 9;}
+header .header-back { width: 22px; height: 22px;}
+header h1 { flex: 1; font-size: 20px;}
+header .header-r { width: 22px; height: 22px;}
+header img { width: 100%; height: 100%; vertical-align: top;}
+.header-blank { clear: both; height: 50px;}
+@media screen and (max-width:750px){ 
+header {  height: 40px;}
+header h1 { font-size: 18px;}
+.header-blank { clear: both; height: 40px;}
+}
+
+.big-tit { padding: 15px 0; text-align: center;}
+.big-tit h1 { line-height: 1.5; margin-bottom: 5px; font-size: 20px;}
+.big-tits { color: #888; font-size: 16px;}
+.big-con { padding: 15px 20px; font-size: 18px;}
+@media screen and (max-width:750px){ 
+.big-tit { padding: 10px 0;}
+.big-tit h1 { margin-bottom: 5px; font-size: 16px;}
+.big-tits { font-size: 14px;}
+.big-con { padding: 5px 10px; font-size: 14px;}
+}
+
+
+.hot-ad {}
+.hot-item { margin: 4px 0; padding: 3px 0 3px 32px; font-weight: bold; border: solid 1px #ff3939; border-radius: 4px; box-shadow: 0 3px 3px rgba(255,57,86,.2); background: linear-gradient(to top, #ff0, #f2eded); position: relative;}
+.hot-item:before { content: ""; display: inline-block; width: 32px; height: 32px; background: url(../hot.gif) top left no-repeat; position: absolute; top: 0; left: 0;}
+@media screen and (max-width:750px){ 
+.hot-ad { padding: 0 4px;}
+}
+
+.list-webimg { display: flex; flex-wrap: wrap; padding: 0.2rem 0 0.06rem 0.1rem;}
+.list-webimg .item { padding: 0 0.09rem 0.14rem 0.09rem; text-align: center;}
+.list-webimg .item a {}
+.list-webimg .item a img { width: 1.64rem; height: 0.8rem; margin-bottom: 0.08rem; border-radius: 0.08rem; box-shadow: 0 0.04rem 0.08rem rgba(0,0,0,.05);}
+.list-webimg .item a p { width: 1.64rem; height: 0.4rem; line-height: 0.4rem; overflow: hidden;}
+
+.list-webtxt { display: flex; flex-wrap: wrap; background: #f5f5f5; padding: 0.2rem 0 0.06rem 0.1rem;}
+.list-webtxt .item { padding: 0 0.09rem 0.14rem 0.09rem; text-align: center;}
+.list-webtxt .item a { display: block; width: 1.64rem; height: 0.64rem; line-height: 0.64rem; overflow: hidden; border-radius: 0.08rem; background: #fff;}
+
+.list-img { display: flex; flex-wrap: wrap; padding: 0.2rem 0 0.06rem 0.1rem;}
+.list-img .item { padding: 0 0.09rem 0.14rem 0.09rem; text-align: center;}
+.list-img .item a {}
+.list-img .item a img { width: 1.64rem; height: 2rem; margin-bottom: 0.08rem; box-shadow: 0 0.04rem 0.08rem rgba(0,0,0,.05);}
+.list-img .item a p { width: 1.64rem; height: 0.4rem; line-height: 0.4rem; overflow: hidden;}

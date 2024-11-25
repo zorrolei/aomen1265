@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <title>管理页面</title>
+
+  <!-- 引入 Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    crossorigin="anonymous">
+
+  <!-- 引入 Font Awesome 图标库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- 引入 Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <!-- 引入 Flatpickr 中文语言包 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+
+  <style>
+    /* 自定义样式 */
+    body {
+      padding-top: 60px;
+      background-color: #f8f9fa;
+    }
+
+    .logout {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .attributes-span {
+      font-size: 0.9em;
+      color: #6c757d;
+    }
+
+    .delete-button {
+      width: 100%;
+    }
+
+    .data-list {
+      font-size: 12px;
+    }
+
+    /* 让号码输入框在大屏幕上排成一排 */
+    @media (min-width: 768px) {
+      .number-input {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .number-input label {
+        margin-bottom: 5px;
+      }
+
+      .number-input input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">管理页面</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="切换导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">退出登录</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主容器 -->
+  <div class="container mt-4">
+    <!-- 提示信息 -->
+    <div id="liveAlertPlaceholder"></div>
+
+    <!-- TAB 选项卡 -->
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="section1-tab" data-bs-toggle="tab" data-bs-target="#section1" type="button"
+          role="tab" aria-controls="section1" aria-selected="true">澳门全民彩</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="section2-tab" data-bs-toggle="tab" data-bs-target="#section2" type="button"
+          role="tab" aria-controls="section2" aria-selected="false">澳门六合彩</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="section3-tab" data-bs-toggle="tab" data-bs-target="#section3" type="button"
+          role="tab" aria-controls="section3" aria-selected="false">香港六合彩</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <!-- 添加开奖结果 - 区域 1 -->
+      <div class="tab-pane fade show active" id="section1" role="tabpanel" aria-labelledby="section1-tab">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h2>添加开奖结果 - 澳门全民彩</h2>
+          </div>
+          <div class="card-body">
+            <form action="/dashboard/section/1" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label for="period1" class="form-label">期号：</label>
+                  <input type="text" class="form-control" id="period1" name="period" required>
+                </div>
+                <div class="col-6">
+                  <label for="drawTime1" class="form-label">开奖时间：</label>
+                  <input type="text" class="form-control" id="drawTime1" name="drawTime" required>
+                </div>
+                <% for (let i=1; i <=7; i++) { %>
+                  <div class="col number-input">
+                    <label for="number1<%= i %>" class="form-label">号码 <%= i %>：</label>
+                    <input type="number" class="form-control" id="number1<%= i %>" name="numbers[]" min="1" max="49"
+                      required>
+                    <div id="attributes1<%= i %>"></div>
+                  </div>
+                  <% } %>
+              </div>
+              <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 记录列表 for section 1 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>开奖记录 - 澳门全民彩</h2>
+          </div>
+          <div class="card-body">
+            <!-- 记录列表表格 -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover data-list">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>期号</th>
+                    <th>开奖号码及属性</th>
+                    <th>开奖时间</th>
+                    <th>版块</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% recordsSection1.forEach(function(record) { %>
+                    <tr id="record-<%= record.id %>">
+                      <td>
+                        <%= record.id %>
+                      </td>
+                      <td>
+                        <%= record.period %>
+                      </td>
+                      <td>
+                        <div class="row">
+                          <% if (Array.isArray(record.numbers) && record.numbers.length> 0) { %>
+                            <% record.numbers.forEach(function(num, index) { %>
+                              <div class="col">
+                                <strong>号码<%= index + 1 %>：</strong>
+                                <%= num.number %>
+                                  <ul class="list-unstyled mb-0">
+                                    <li>生肖：<%= num.zodiac %>
+                                    </li>
+                                    <li>五行：<%= num.element %>
+                                    </li>
+                                    <li>波色：<%= num.color %>
+                                    </li>
+                                    <li>合数：<%= num.sumParity %>
+                                    </li>
+                                  </ul>
+                              </div>
+                              <% }); %>
+                                <% } else { %>
+                                  无号码信息
+                                  <% } %>
+                        </div>
+                      </td>
+                      <td>
+                        <%= record.drawTime %>
+                      </td>
+                      <td>
+                        <%= record.section %>
+                      </td>
+                      <td>
+                        <!-- 删除按钮 -->
+                        <button class="btn btn-danger btn-sm" onclick="openDeleteModal(<%= record.id %>)">
+                          <i class="fas fa-trash-alt"></i> 删除
+                        </button>
+                      </td>
+                    </tr>
+                    <% }); %>
+                      <% if (recordsSection1.length===0) { %>
+                        <tr>
+                          <td colspan="6" class="text-center">暂无记录</td>
+                        </tr>
+                        <% } %>
+                </tbody>
+              </table>
+            </div>
+            <!-- 分页控件 -->
+            <!-- 分页控件 for section 1 -->
+<nav aria-label="分页">
+  <ul class="pagination justify-content-center">
+    <% const currentPage1 = pagination.section1.currentPage; %>
+    <% const totalPages1 = pagination.section1.totalPages; %>
+
+    <!-- 上一页按钮 -->
+    <li class="page-item <%= currentPage1 === 1 ? 'disabled' : '' %>">
+      <a class="page-link" href="?page1=<%= currentPage1 - 1 %>#section1" aria-label="上一页">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <!-- 页码按钮 -->
+    <% for (let i = 1; i <= totalPages1; i++) { %>
+      <li class="page-item <%= currentPage1 === i ? 'active' : '' %>">
+        <a class="page-link" href="?page1=<%= i %>#section1"><%= i %></a>
+      </li>
+    <% } %>
+
+    <!-- 下一页按钮 -->
+    <li class="page-item <%= currentPage1 === totalPages1 ? 'disabled' : '' %>">
+      <a class="page-link" href="?page1=<%= currentPage1 + 1 %>#section1" aria-label="下一页">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 添加开奖结果 - 区域 2 -->
+      <div class="tab-pane fade" id="section2" role="tabpanel" aria-labelledby="section2-tab">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h2>添加开奖结果 - 澳门六合彩</h2>
+          </div>
+          <div class="card-body">
+            <form action="/dashboard/section/2" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label for="period2" class="form-label">期号：</label>
+                  <input type="text" class="form-control" id="period2" name="period" required>
+                </div>
+                <div class="col-6">
+                  <label for="drawTime2" class="form-label">开奖时间：</label>
+                  <input type="text" class="form-control" id="drawTime2" name="drawTime" required>
+                </div>
+                <% for (let i=1; i <=7; i++) { %>
+                  <div class="col number-input">
+                    <label for="number2<%= i %>" class="form-label">号码 <%= i %>：</label>
+                    <input type="number" class="form-control" id="number2<%= i %>" name="numbers[]" min="1" max="49"
+                      required>
+                    <div id="attributes2<%= i %>"></div>
+                  </div>
+                  <% } %>
+              </div>
+              <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 记录列表 for section 2 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>开奖记录 - 澳门六合彩</h2>
+          </div>
+          <div class="card-body">
+            <!-- 记录列表表格 -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover data-list">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>期号</th>
+                    <th>开奖号码及属性</th>
+                    <th>开奖时间</th>
+                    <th>版块</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% recordsSection2.forEach(function(record) { %>
+                    <tr id="record-<%= record.id %>">
+                      <td>
+                        <%= record.id %>
+                      </td>
+                      <td>
+                        <%= record.period %>
+                      </td>
+                      <td>
+                        <div class="row">
+                          <% if (Array.isArray(record.numbers) && record.numbers.length> 0) { %>
+                            <% record.numbers.forEach(function(num, index) { %>
+                              <div class="col">
+                                <strong>号码<%= index + 1 %>：</strong>
+                                <%= num.number %>
+                                  <ul class="list-unstyled mb-0">
+                                    <li>生肖：<%= num.zodiac %>
+                                    </li>
+                                    <li>五行：<%= num.element %>
+                                    </li>
+                                    <li>波色：<%= num.color %>
+                                    </li>
+                                    <li>合数：<%= num.sumParity %>
+                                    </li>
+                                  </ul>
+                              </div>
+                              <% }); %>
+                                <% } else { %>
+                                  无号码信息
+                                  <% } %>
+                        </div>
+                      </td>
+                      <td>
+                        <%= record.drawTime %>
+                      </td>
+                      <td>
+                        <%= record.section %>
+                      </td>
+                      <td>
+                        <!-- 删除按钮 -->
+                        <button class="btn btn-danger btn-sm" onclick="openDeleteModal(<%= record.id %>)">
+                          <i class="fas fa-trash-alt"></i> 删除
+                        </button>
+                      </td>
+                    </tr>
+                    <% }); %>
+                      <% if (recordsSection2.length===0) { %>
+                        <tr>
+                          <td colspan="6" class="text-center">暂无记录</td>
+                        </tr>
+                        <% } %>
+                </tbody>
+              </table>
+            </div>
+            <!-- 分页控件 for section 2 -->
+<nav aria-label="分页">
+  <ul class="pagination justify-content-center">
+    <% const currentPage2 = pagination.section2.currentPage; %>
+    <% const totalPages2 = pagination.section2.totalPages; %>
+
+    <!-- 上一页按钮 -->
+    <li class="page-item <%= currentPage2 === 1 ? 'disabled' : '' %>">
+      <a class="page-link" href="?page2=<%= currentPage2 - 1 %>#section2" aria-label="上一页">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <!-- 页码按钮 -->
+    <% for (let i = 1; i <= totalPages2; i++) { %>
+      <li class="page-item <%= currentPage2 === i ? 'active' : '' %>">
+        <a class="page-link" href="?page2=<%= i %>#section2"><%= i %></a>
+      </li>
+    <% } %>
+
+    <!-- 下一页按钮 -->
+    <li class="page-item <%= currentPage2 === totalPages2 ? 'disabled' : '' %>">
+      <a class="page-link" href="?page2=<%= currentPage2 + 1 %>#section2" aria-label="下一页">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 添加开奖结果 - 区域 3 -->
+      <div class="tab-pane fade" id="section3" role="tabpanel" aria-labelledby="section3-tab">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h2>添加开奖结果 - 香港六合彩</h2>
+          </div>
+          <div class="card-body">
+            <form action="/dashboard/section/3" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label for="period3" class="form-label">期号：</label>
+                  <input type="text" class="form-control" id="period3" name="period" required>
+                </div>
+                <div class="col-6">
+                  <label for="drawTime3" class="form-label">开奖时间：</label>
+                  <input type="text" class="form-control" id="drawTime3" name="drawTime" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <% for (let i=1; i <=7; i++) { %>
+                  <div class="col number-input">
+                    <label for="number3<%= i %>" class="form-label">号码 <%= i %>：</label>
+                    <input type="number" class="form-control" id="number3<%= i %>" name="numbers[]" min="1" max="49"
+                      required>
+                    <div id="attributes3<%= i %>"></div>
+                  </div>
+                  <% } %>
+              </div>
+              <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 记录列表 for section 3 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>开奖记录 - 香港六合彩</h2>
+          </div>
+          <div class="card-body">
+            <!-- 记录列表表格 -->
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover data-list">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>期号</th>
+                    <th>开奖号码及属性</th>
+                    <th>开奖时间</th>
+                    <th>版块</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% recordsSection3.forEach(function(record) { %>
+                    <tr id="record-<%= record.id %>">
+                      <td>
+                        <%= record.id %>
+                      </td>
+                      <td>
+                        <%= record.period %>
+                      </td>
+                      <td>
+                        <div class="row">
+                          <% if (Array.isArray(record.numbers) && record.numbers.length> 0) { %>
+                            <% record.numbers.forEach(function(num, index) { %>
+                              <div class="col">
+                                <strong>号码<%= index + 1 %>：</strong>
+                                <%= num.number %>
+                                  <ul class="list-unstyled mb-0">
+                                    <li>生肖：<%= num.zodiac %>
+                                    </li>
+                                    <li>五行：<%= num.element %>
+                                    </li>
+                                    <li>波色：<%= num.color %>
+                                    </li>
+                                    <li>合数：<%= num.sumParity %>
+                                    </li>
+                                  </ul>
+                              </div>
+                              <% }); %>
+                                <% } else { %>
+                                  无号码信息
+                                  <% } %>
+                        </div>
+                      </td>
+                      <td>
+                        <%= record.drawTime %>
+                      </td>
+                      <td>
+                        <%= record.section %>
+                      </td>
+                      <td>
+                        <!-- 删除按钮 -->
+                        <button class="btn btn-danger btn-sm" onclick="openDeleteModal(<%= record.id %>)">
+                          <i class="fas fa-trash-alt"></i> 删除
+                        </button>
+                      </td>
+                    </tr>
+                    <% }); %>
+                      <% if (recordsSection3.length===0) { %>
+                        <tr>
+                          <td colspan="6" class="text-center">暂无记录</td>
+                        </tr>
+                        <% } %>
+                </tbody>
+              </table>
+            </div>
+            <!-- 分页控件 for section 3 -->
+<nav aria-label="分页">
+  <ul class="pagination justify-content-center">
+    <% const currentPage3 = pagination.section3.currentPage; %>
+    <% const totalPages3 = pagination.section3.totalPages; %>
+
+    <!-- 上一页按钮 -->
+    <li class="page-item <%= currentPage3 === 1 ? 'disabled' : '' %>">
+      <a class="page-link" href="?page3=<%= currentPage3 - 1 %>#section3" aria-label="上一页">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <!-- 页码按钮 -->
+    <% for (let i = 1; i <= totalPages3; i++) { %>
+      <li class="page-item <%= currentPage3 === i ? 'active' : '' %>">
+        <a class="page-link" href="?page3=<%= i %>#section3"><%= i %></a>
+      </li>
+    <% } %>
+
+    <!-- 下一页按钮 -->
+    <li class="page-item <%= currentPage3 === totalPages3 ? 'disabled' : '' %>">
+      <a class="page-link" href="?page3=<%= currentPage3 + 1 %>#section3" aria-label="下一页">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">确认删除</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+          </div>
+          <div class="modal-body">
+            确定要删除这条记录吗？
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 引入 Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"></script>
+
+    <!-- 引入 Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- 引入 Flatpickr 中文语言包 -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+
+    <script>
+      // 初始化 Flatpickr 日期选择器为中文
+      flatpickr("#drawTime1, #drawTime2, #drawTime3", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i:s",
+        locale: "zh",
+        time_24hr: true,
+        defaultHour: 0,
+        defaultMinute: 0,
+        defaultSeconds: 0,
+        defaultDate: new Date().setHours(0, 0, 0, 0)
+      });
+
+      // 前端脚本，用于实时计算号码属性
+      function calculateAttributes(num, index, section) {
+        if (num === '') {
+          document.getElementById(`attributes${section}${index}`).innerHTML = '';
+          return;
+        }
+
+        // 发起请求到后端，获取号码属性
+        fetch(`/number-info/${num}`)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById(`attributes${section}${index}`).innerHTML = `
+              <div class="attributes-span">
+                生肖：${data.zodiac}，五行：${data.element}，波色：${data.color}，合数：${data.sumParity}
+              </div>
+            `;
+          })
+          .catch(error => {
+            console.error('Error fetching number attributes:', error);
+            document.getElementById(`attributes${section}${index}`).innerHTML = '<span class="text-danger">无法获取属性</span>';
+          });
+      }
+
+      function setupNumberInputs() {
+        for (let section = 1; section <= 3; section++) {
+          for (let i = 1; i <= 7; i++) {
+            const input = document.getElementById(`number${section}${i}`);
+            if (input) {
+              input.addEventListener('change', function () {
+                calculateAttributes(this.value, i, section);
+              });
+            }
+          }
+        }
+      }
+
+      window.onload = setupNumberInputs;
+
+      // AJAX 删除记录
+      let deleteRecordId = null;
+
+      function openDeleteModal(id) {
+        deleteRecordId = id;
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+      }
+
+      document.getElementById('confirmDelete').addEventListener('click', function () {
+        if (deleteRecordId !== null) {
+          deleteRecord(deleteRecordId);
+          deleteRecordId = null;
+          const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+          deleteModal.hide();
+        }
+      });
+
+      function deleteRecord(id) {
+        // 获取 CSRF 令牌
+        const csrfToken = document.querySelector('input[name="_csrf"]').value;
+
+        fetch('/delete-record', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `_csrf=${encodeURIComponent(csrfToken)}&id=${encodeURIComponent(id)}`
+        })
+          .then(response => {
+            if (response.ok) {
+              // 删除成功，移除记录行
+              const row = document.getElementById(`record-${id}`);
+              if (row) {
+                row.remove();
+              }
+              // 显示成功提示
+              showAlert('删除成功！', 'success');
+            } else {
+              return response.text().then(text => { throw new Error(text) });
+            }
+          })
+          .catch(error => {
+            alert('删除失败: ' + error.message);
+          });
+      }
+
+      // 显示提示信息
+      function showAlert(message, type) {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = `
+          <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
+          </div>
+        `;
+        alertPlaceholder.append(wrapper);
+      }
+    </script>
+  </div>
+</body>
+
+</html>

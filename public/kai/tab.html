@@ -1,0 +1,556 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Language" content="zh-cn">
+    <meta name="applicable-device" content="mobile">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta content="telephone=no" name="format-detection">
+    <link rel="stylesheet" href="https://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.css">
+
+    <style>
+        html {
+            font-size: 18px;
+            width: 100%;
+            height: 100%;
+            font-family: "微软雅黑", "宋体", "黑体";
+            color: #000;
+            background-color: white;
+        }
+
+        body,
+        ul,
+        li {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        main {
+            max-width: 480px;
+            /*min-height:191px;*/
+            border-radius: 10px;
+            /*padding:10px 0;*/
+            margin: auto;
+        }
+
+        .border-box {
+            padding: .8rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: #07c160;
+        }
+
+        @media screen and (max-width:600px) {
+            .kj .kj-box ul li span {
+                width: 35px !important;
+                height: 35px !important;
+            }
+
+            .kj .kj-box ul li span>lable {
+                margin-top: 8px !important;
+            }
+
+            .border-box {
+                padding: .3rem;
+            }
+        }
+
+        .kj .head li {
+            width: 50%;
+            display: inline-block;
+            font-size: .9rem;
+        }
+
+        .kj .head li:last-child {
+            text-align: right;
+        }
+
+        .kj .head #qishu {
+            color: #ff0000;
+        }
+
+        .kj .kj-box {
+            text-align: center;
+            padding: .5rem 0;
+        }
+
+        .kj .kj-box ul {
+            display: flex;
+        }
+
+        .kj .kj-box ul li {
+            width: 12.5%;
+            margin: 0 .1rem;
+        }
+
+        .kj .kj-box ul li span {
+            width: 100%;
+            height: 2.5rem;
+            text-align: center;
+            font-size: 1.1rem;
+            border-radius: 50%;
+            display: inline-block;
+            font-family: Arial;
+        }
+
+        .kj .kj-box ul li span>lable {
+            margin-left: -.23rem;
+            display: inline-block;
+            margin-left: -.1rem;
+            margin-top: .8rem;
+        }
+
+        .kj .kj-box ul li em {
+            font-style: normal;
+            display: block;
+            font-size: .8rem;
+        }
+
+        .kj .kj-box ul li:nth-child(7) span {
+            display: inline-block;
+            width: 100%px;
+            line-height: 2.5rem;
+            font-size: 2.0rem;
+            font-weight: bold;
+            color: #acacac;
+        }
+
+        .kj .kj-box ul li:nth-child(7) span:before {
+            content: "＋";
+        }
+
+        .kj .kj-foot {
+            text-align: center;
+            color: #eb5252;
+            font-size: .9rem;
+        }
+
+        .kj img {
+            width: 30px;
+        }
+
+        .alertBox {
+            border: 1px solid #B1B1B1;
+            position: absolute;
+            bottom: 0px;
+            width: 200px;
+            left: 50%;
+            margin-left: -100px;
+            background-color: crimson;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            display: none;
+            line-height: 1.4rem;
+            font-size: .9rem;
+        }
+
+        .kj-lotto-box>ul {
+            display: flex;
+            justify-content: space-between;
+
+        }
+
+        .kj-lotto-box>ul>li {
+
+            text-align: center;
+            font-size: 14px;
+            width: 100%;
+            height: 70px;
+            padding: 6px 9px 6px 9px;
+            border: solid 1px #ddd;
+            box-sizing: border-box;
+            border-radius: 6px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+            background: linear-gradient(to top, #eee, #fff);
+        }
+
+        .kj-lotto-box>ul>li span {
+            display: inline-block;
+            /*display:block;*/
+            width: 35px;
+            height: 35px;
+            line-height: 30px;
+            font-size: 14px;
+            font-weight: bolder;
+            text-align: center;
+            /*margin-left: 8px;*/
+        }
+
+        .kj-lotto-box ul li {
+            margin-right: 3px;
+            /* 设置号码之间的间距 */
+        }
+
+        .kj-lotto-box>ul>li>em {
+            margin-top: 5px;
+            display: block;
+            line-height: 1;
+            /*margin-top: 10px;*/
+            font-style: normal;
+            text-align: center;
+        }
+
+        .kj-lotto-box>ul>li {}
+
+        .border-box .head {
+            margin-bottom: 10px;
+        }
+
+        .kj-foot {
+            margin-top: -3px;
+        }
+
+        .jianhao {
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: none !important;
+            background: none !important;
+            line-height: 70px;
+        }
+
+        .kjVideo {
+            float: right;
+            margin-right: 0.2rem;
+            background: red;
+            color: #fff;
+            border-radius: 0.2rem;
+            padding: 0 2px;
+            text-decoration: none;
+        }
+
+        .redBoClass {
+            color: #000;
+            background: url("/images/red.png") no-repeat top center;
+            background-size: 100%;
+            width: 90%;
+            height: 90%;
+        }
+
+        .blueBoClass {
+            color: #000;
+            background: url("/images/blue.png") no-repeat top center;
+            background-size: 100%;
+            width: 90%;
+            height: 90%;
+        }
+
+        .greenBoClass {
+            color: #000;
+            background: url("/images/green.png") no-repeat top center;
+            background-size: 100%;
+            width: 90%;
+            height: 90%;
+        }
+
+        .p-container1 {
+            display: inline-block;
+            /* display: block; */
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            font-size: 14px;
+            text-align: center;
+            /* margin-left: 8px; */
+        }
+
+        /* 添加选项卡的样式 */
+        .tab-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding:4px 10px;
+            cursor: pointer;
+            background-color: #eee;
+            border-radius: 4px;
+        }
+
+        .tab.active {
+            background-color: #ff0000;
+            font-weight: bold;
+            color:#fff;
+        }
+
+        /* 调整内容区域的样式 */
+        .content-area {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        @media screen and (max-width:414px) {
+            .kj-lotto-box>ul>li {
+
+                text-align: center;
+                font-size: 12px;
+                width: 100%;
+                height: 70px;
+                padding: 6px 4px 6px 4px;
+                border: solid 1px #ddd;
+                box-sizing: border-box;
+                border-radius: 6px;
+                box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+                background: linear-gradient(to top, #eee, #fff);
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <main class="kj">
+        <div class="border-box">
+            <div class="tab-container">
+                <div class="tab active" data-section="1">香港新日彩</div>
+                <div class="tab" data-section="2">澳门六合彩</div>
+                <div class="tab" data-section="3">香港六合彩</div>
+            </div>
+
+            <div
+                style="display: flex; align-items: center; margin-bottom: 16px; font-size: 14px; justify-content: space-between;">
+                <div>当前第 <span id="qishu"></span> 期</div>
+                <span id="djs">倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span
+                        class="second">00</span></span>
+                <div>  <a href="history.html?section=1" class="history-link" target="_blank">历史记录</a>></div>
+            </div>
+
+            <div class="kj-lotto-box" id="jingtaihtml" style="display: flex; align-items: center;">
+
+                <ul>
+                    <li><span class="p" id="nowball0">00</span></li>
+                    <li><span class="p" id="nowball1">00</span></li>
+                    <li><span class="p" id="nowball2">00</span></li>
+                    <li><span class="p" id="nowball3">00</span></li>
+                    <li><span class="p" id="nowball4">00</span></li>
+                    <li><span class="p" id="nowball5">00</span></li>
+                    <li class="jianhao"><span><img src="/images/jianhao1.png" alt=""></span></li>
+                    <li><span class="p" id="nowball6">00</span></li>
+                </ul>
+            </div>
+        </div>
+
+
+    </main>
+
+    <script src="js/jquery.min.js"></script>
+    <!-- <script src="js/d.js"></script> -->
+
+
+    <script>
+        $(document).ready(function () {
+            var startDjs = 0;
+            var currentSection = '1'; // 默认分类为 1
+            var pollTimer; // 全局轮询计时器变量
+
+
+            // 初始化
+            init();
+
+            function init() {
+                bindTabEvents();
+
+                getBall();
+            }
+            function bindTabEvents() {
+                $('.tab').click(function () {
+                    $('.tab').removeClass('active');
+                    $(this).addClass('active');
+
+                    // 获取选中的 section
+                    currentSection = $(this).data('section').toString();
+
+                    // 重置倒计时和标志位
+                    startDjs = 0;
+                    currentPeriod = '';
+
+                    // 清除之前的轮询计时器
+                    if (pollTimer) {
+                        clearTimeout(pollTimer);
+                    }
+
+                    // 清空倒计时显示
+                    $('#djs').html('倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">00</span>');
+
+                    // 更新历史记录链接的 section 参数
+                    $('a.history-link').attr('href', 'history.html?section=' + currentSection);
+
+                    // 获取并显示选中分类的数据
+                    getBall(currentSection);
+                });
+            }
+
+
+            function getBall(section) {
+                $.ajax({
+                    url: '/latest-result',
+                    method: 'GET',
+                    data: { section: section }, // 传递 section 给后端
+                    success: function (res) {
+                        if (res.error) {
+                            console.error('获取最新结果失败:', res.error);
+                            return;
+                        }
+
+                        // 显示当前的结果
+                        showNumbers(res.current.data);
+                        showRiqi(res.current);
+
+                        // 存储当前的期号
+                        currentPeriod = res.current.period;
+
+                        // 启动倒计时
+                        if (startDjs === 0) {
+                            const countdownTimeUTC = res.countdown + "Z"; // 下一次开奖时间
+                            countDown(countdownTimeUTC, res.serverTime, "#djs", function () {
+                                // 倒计时结束后开始轮询获取新结果
+                                pollForNewResult();
+                            });
+                            startDjs = 1;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX 请求失败:', error);
+                    },
+                    dataType: 'json'
+                });
+            }
+
+
+
+            function pollForNewResult() {
+                $.ajax({
+                    url: '/latest-result',
+                    method: 'GET',
+                    data: { section: currentSection }, // 传递当前的 section 给后端
+                    success: function (res) {
+                        if (res.error) {
+                            console.error('获取最新结果失败:', res.error);
+                            setTimeout(pollForNewResult, 5000); // 5秒后重试
+                            return;
+                        }
+
+                        // 检查期号是否变化
+                        if (res.current.period !== currentPeriod) {
+                            // 更新当前期号
+                            currentPeriod = res.current.period;
+
+                            // 显示新的结果
+                            showNumbers(res.current.data);
+                            showRiqi(res.current);
+
+                            // 重新启动倒计时
+                            const countdownTimeUTC = res.countdown + "Z"; // 下一次开奖时间
+                            countDown(countdownTimeUTC, res.serverTime, "#djs", function () {
+                                // 倒计时结束后继续轮询获取新结果
+                                pollForNewResult();
+                            });
+                        } else {
+                            // 如果期号未变化，等待一段时间后重试
+                            pollTimer = setTimeout(pollForNewResult, 5000);  // 5秒后重试
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX 请求失败:', error);
+                        setTimeout(pollForNewResult, 5000); // 5秒后重试
+                    },
+                    dataType: 'json'
+                });
+            }
+
+
+
+
+            function showRiqi(data) {
+                $("#qishu").text(data.period);
+                // $("#nextqishu").text(data.other.nextqishu);
+                $("#nexttime").text(data.drawTime);
+            }
+
+            function showNumbers(data) {
+                $.each(data, function (i, item) {
+                    let index = parseInt(i) - 1;
+                    if (item.tit !== 0 && item.tit !== null) {
+                        let html = `<span class="p ${item.class}">${item.tit}</span><div class="sx"><div class="m1x">${item.tit0}/${item.wx}</div></div>`;
+                        $(`#nowball${index}`).html(html);
+                    }
+                });
+            }
+
+            function showkaijiangHtml() {
+                $("#jingtaihtml").html(`
+            <div class="kj-lotto-box">
+                <ul>
+                    <li><span class="p" id="nowball0"><img src="/images/qq1.png" width="100%">与</span></li>
+                    <li><span class="p" id="nowball1"><img src="/images/ww1.png" width="100%">官</span></li>
+                    <li><span class="p" id="nowball2"><img src="/images/ee1.png" width="100%">方</span></li>
+                    <li><span class="p" id="nowball3"><img src="/images/rr1.png" width="100%">网</span></li>
+                    <li><span class="p" id="nowball4"><img src="/images/tt1.png" width="100%">同</span></li>
+                    <li><span class="p" id="nowball5"><img src="/images/yy1.png" width="100%">步</span></li>
+                    <li class="jianhao"><span><img src="/images/jianhao1.png" alt=""></span></li>
+                    <li><span class="p" id="nowball6"><img src="/images/uu1.png" width="100%"><span>中</span></span></li>
+                </ul>
+            </div>
+        `);
+            }
+
+            var timer; // 全局计时器变量
+
+            function countDown(endTime, serverTime, element, onComplete) {
+                if (timer) {
+                    clearInterval(timer); // 清除之前的计时器
+                }
+                var endDate = new Date(endTime);
+
+                function updateTimer() {
+                    var now = new Date().getTime();
+                    var distance = endDate.getTime() - now;
+
+                    if (distance < 0) {
+                        clearInterval(timer);
+                        if (typeof onComplete === 'function') {
+                            onComplete(); // 倒计时结束时执行回调
+                        }
+                        return;
+                    }
+
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    $(element).html(`倒计时 <span class="hour">${padZero(hours)}</span>:<span class="minute">${padZero(minutes)}</span>:<span class="second">${padZero(seconds)}</span>`);
+                }
+
+                updateTimer();
+                timer = setInterval(updateTimer, 1000);
+            }
+
+
+
+            function padZero(num) {
+                return num < 10 ? '0' + num : num;
+            }
+
+
+            function padZero(num) {
+                return num < 10 ? '0' + num : num;
+            }
+        });
+
+
+
+    </script>
+</body>
+
+</html>
