@@ -189,7 +189,7 @@
                         </div>
                       </td>
                       <td>
-                        <%= record.drawTime %>
+                        <%= new Date(record.drawTime).toLocaleString('zh-CN', { hour12: false }) %>
                       </td>
                       <td>
                         <%= record.section %>
@@ -212,33 +212,35 @@
             </div>
             <!-- 分页控件 -->
             <!-- 分页控件 for section 1 -->
-<nav aria-label="分页">
-  <ul class="pagination justify-content-center">
-    <% const currentPage1 = pagination.section1.currentPage; %>
-    <% const totalPages1 = pagination.section1.totalPages; %>
+            <nav aria-label="分页">
+              <ul class="pagination justify-content-center">
+                <% const currentPage1=pagination.section1.currentPage; %>
+                  <% const totalPages1=pagination.section1.totalPages; %>
 
-    <!-- 上一页按钮 -->
-    <li class="page-item <%= currentPage1 === 1 ? 'disabled' : '' %>">
-      <a class="page-link" href="?page1=<%= currentPage1 - 1 %>#section1" aria-label="上一页">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
+                    <!-- 上一页按钮 -->
+                    <li class="page-item <%= currentPage1 === 1 ? 'disabled' : '' %>">
+                      <a class="page-link" href="?page1=<%= currentPage1 - 1 %>#section1" aria-label="上一页">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
 
-    <!-- 页码按钮 -->
-    <% for (let i = 1; i <= totalPages1; i++) { %>
-      <li class="page-item <%= currentPage1 === i ? 'active' : '' %>">
-        <a class="page-link" href="?page1=<%= i %>#section1"><%= i %></a>
-      </li>
-    <% } %>
+                    <!-- 页码按钮 -->
+                    <% for (let i=1; i <=totalPages1; i++) { %>
+                      <li class="page-item <%= currentPage1 === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page1=<%= i %>#section1">
+                          <%= i %>
+                        </a>
+                      </li>
+                      <% } %>
 
-    <!-- 下一页按钮 -->
-    <li class="page-item <%= currentPage1 === totalPages1 ? 'disabled' : '' %>">
-      <a class="page-link" href="?page1=<%= currentPage1 + 1 %>#section1" aria-label="下一页">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+                        <!-- 下一页按钮 -->
+                        <li class="page-item <%= currentPage1 === totalPages1 ? 'disabled' : '' %>">
+                          <a class="page-link" href="?page1=<%= currentPage1 + 1 %>#section1" aria-label="下一页">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+              </ul>
+            </nav>
           </div>
 
         </div>
@@ -329,7 +331,7 @@
                         </div>
                       </td>
                       <td>
-                        <%= record.drawTime %>
+                        <%= new Date(record.drawTime).toLocaleString('zh-CN', { hour12: false }) %>
                       </td>
                       <td>
                         <%= record.section %>
@@ -351,33 +353,35 @@
               </table>
             </div>
             <!-- 分页控件 for section 2 -->
-<nav aria-label="分页">
-  <ul class="pagination justify-content-center">
-    <% const currentPage2 = pagination.section2.currentPage; %>
-    <% const totalPages2 = pagination.section2.totalPages; %>
+            <nav aria-label="分页">
+              <ul class="pagination justify-content-center">
+                <% const currentPage2=pagination.section2.currentPage; %>
+                  <% const totalPages2=pagination.section2.totalPages; %>
 
-    <!-- 上一页按钮 -->
-    <li class="page-item <%= currentPage2 === 1 ? 'disabled' : '' %>">
-      <a class="page-link" href="?page2=<%= currentPage2 - 1 %>#section2" aria-label="上一页">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
+                    <!-- 上一页按钮 -->
+                    <li class="page-item <%= currentPage2 === 1 ? 'disabled' : '' %>">
+                      <a class="page-link" href="?page2=<%= currentPage2 - 1 %>#section2" aria-label="上一页">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
 
-    <!-- 页码按钮 -->
-    <% for (let i = 1; i <= totalPages2; i++) { %>
-      <li class="page-item <%= currentPage2 === i ? 'active' : '' %>">
-        <a class="page-link" href="?page2=<%= i %>#section2"><%= i %></a>
-      </li>
-    <% } %>
+                    <!-- 页码按钮 -->
+                    <% for (let i=1; i <=totalPages2; i++) { %>
+                      <li class="page-item <%= currentPage2 === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page2=<%= i %>#section2">
+                          <%= i %>
+                        </a>
+                      </li>
+                      <% } %>
 
-    <!-- 下一页按钮 -->
-    <li class="page-item <%= currentPage2 === totalPages2 ? 'disabled' : '' %>">
-      <a class="page-link" href="?page2=<%= currentPage2 + 1 %>#section2" aria-label="下一页">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+                        <!-- 下一页按钮 -->
+                        <li class="page-item <%= currentPage2 === totalPages2 ? 'disabled' : '' %>">
+                          <a class="page-link" href="?page2=<%= currentPage2 + 1 %>#section2" aria-label="下一页">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+              </ul>
+            </nav>
 
 
           </div>
@@ -471,7 +475,7 @@
                         </div>
                       </td>
                       <td>
-                        <%= record.drawTime %>
+                        <%= new Date(record.drawTime).toLocaleString('zh-CN', { hour12: false }) %>
                       </td>
                       <td>
                         <%= record.section %>
@@ -493,33 +497,35 @@
               </table>
             </div>
             <!-- 分页控件 for section 3 -->
-<nav aria-label="分页">
-  <ul class="pagination justify-content-center">
-    <% const currentPage3 = pagination.section3.currentPage; %>
-    <% const totalPages3 = pagination.section3.totalPages; %>
+            <nav aria-label="分页">
+              <ul class="pagination justify-content-center">
+                <% const currentPage3=pagination.section3.currentPage; %>
+                  <% const totalPages3=pagination.section3.totalPages; %>
 
-    <!-- 上一页按钮 -->
-    <li class="page-item <%= currentPage3 === 1 ? 'disabled' : '' %>">
-      <a class="page-link" href="?page3=<%= currentPage3 - 1 %>#section3" aria-label="上一页">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
+                    <!-- 上一页按钮 -->
+                    <li class="page-item <%= currentPage3 === 1 ? 'disabled' : '' %>">
+                      <a class="page-link" href="?page3=<%= currentPage3 - 1 %>#section3" aria-label="上一页">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
 
-    <!-- 页码按钮 -->
-    <% for (let i = 1; i <= totalPages3; i++) { %>
-      <li class="page-item <%= currentPage3 === i ? 'active' : '' %>">
-        <a class="page-link" href="?page3=<%= i %>#section3"><%= i %></a>
-      </li>
-    <% } %>
+                    <!-- 页码按钮 -->
+                    <% for (let i=1; i <=totalPages3; i++) { %>
+                      <li class="page-item <%= currentPage3 === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page3=<%= i %>#section3">
+                          <%= i %>
+                        </a>
+                      </li>
+                      <% } %>
 
-    <!-- 下一页按钮 -->
-    <li class="page-item <%= currentPage3 === totalPages3 ? 'disabled' : '' %>">
-      <a class="page-link" href="?page3=<%= currentPage3 + 1 %>#section3" aria-label="下一页">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+                        <!-- 下一页按钮 -->
+                        <li class="page-item <%= currentPage3 === totalPages3 ? 'disabled' : '' %>">
+                          <a class="page-link" href="?page3=<%= currentPage3 + 1 %>#section3" aria-label="下一页">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+              </ul>
+            </nav>
 
           </div>
         </div>
@@ -559,13 +565,13 @@
       // 初始化 Flatpickr 日期选择器为中文
       flatpickr("#drawTime1, #drawTime2, #drawTime3", {
         enableTime: true,
-        dateFormat: "Y-m-d H:i:s",
+        dateFormat: "Y-m-d H:i:ss",
         locale: "zh",
         time_24hr: true,
         defaultHour: 0,
         defaultMinute: 0,
         defaultSeconds: 0,
-        defaultDate: new Date().setHours(0, 0, 0, 0)
+        defaultDate: new Date().setHours(22, 30, 0, 0)
       });
 
       // 前端脚本，用于实时计算号码属性
@@ -643,7 +649,7 @@
                 row.remove();
               }
               // 显示成功提示
-              showAlert('删除成功！', 'success');
+              showAlert('删除成功！', 'success', 1000);
             } else {
               return response.text().then(text => { throw new Error(text) });
             }

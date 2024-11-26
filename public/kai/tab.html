@@ -401,6 +401,7 @@
                     success: function (res) {
                         if (res.error) {
                             console.error('获取最新结果失败:', res.error);
+
                             return;
                         }
 
@@ -488,21 +489,21 @@
                 });
             }
             function startCountdown(res) {
-    const serverTime = res.serverTime;
-    const clientTime = Date.now();
-    const timeDifference = clientTime - serverTime;
-    const countdownTime = res.countdown - timeDifference;
+                const serverTime = res.serverTime;
+                const clientTime = Date.now();
+                const timeDifference = clientTime - serverTime;
+                const countdownTime = res.countdown - timeDifference;
 
-    console.log('服务器时间:', new Date(serverTime).toLocaleString());
-    console.log('客户端时间:', new Date(clientTime).toLocaleString());
-    console.log('时间差（毫秒）:', timeDifference);
-    console.log('倒计时时间:', new Date(countdownTime).toLocaleString());
+                console.log('服务器时间:', new Date(serverTime).toLocaleString());
+                console.log('客户端时间:', new Date(clientTime).toLocaleString());
+                console.log('时间差（毫秒）:', timeDifference);
+                console.log('倒计时时间:', new Date(countdownTime).toLocaleString());
 
-    countDown(countdownTime, "#djs", function () {
-        // 倒计时结束后，开始轮询新的结果
-        pollForNewResult();
-    });
-}
+                countDown(countdownTime, "#djs", function () {
+                    // 倒计时结束后，开始轮询新的结果
+                    pollForNewResult();
+                });
+            }
 
 
 

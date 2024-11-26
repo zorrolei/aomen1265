@@ -8,6 +8,8 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 const app = express();
 const PORT = 3001;
@@ -351,7 +353,6 @@ app.post('/delete-record', authenticateToken, (req, res) => {
 });
 
 // 最新开奖结果的 API 端点
-// 最新开奖结果的 API 端点
 app.get('/latest-result', (req, res) => {
   const section = req.query.section || '1'; // 默认分类为 1
   const currentTime = new Date();
@@ -463,6 +464,64 @@ app.get('/history', (req, res) => {
 
     res.json({ records });
   });
+});
+
+// 抓取目标网页内容
+app.get('/fetch-content', async (req, res) => {
+  try {
+    const response = await axios.get('http://xin1265.com/');
+    const $ = cheerio.load(response.data);
+
+    // 抓取目标内容
+    let targetContent = $('.cgi-body').html(); // 根据实际情况选择目标部分
+
+    if (targetContent) {
+      const replacements = [
+        { pattern: /新日头条/g, replacement: '澳门全民彩' },
+        { pattern: /http:\/\/1\.xinxincc\.xyz\/kai\.html/g, replacement: 'kai\/tab.html' },
+        { pattern: /香港新日彩/g, replacement: '澳门全民彩' },
+        { pattern: /xin1265.com/g, replacement: 'aomen1265.com' }
+      ];
+
+
+
+      replacements.forEach(({ pattern, replacement }) => {
+        targetContent = targetContent.replace(pattern, replacement);
+      });
+      // 4. 使用 Cheerio 解析替换后的 HTML
+      const $content = cheerio.load(targetContent);
+
+      // 5. 移除所有 <a> 标签的 href 属性
+      $content('a[href^="cat/"]').each((i, elem) => {
+        const hrefValue = $content(elem).attr('href');
+        if (/^cat\/\d+$/.test(hrefValue)) {
+          // 方法一：移除 href 属性，使其不可点击
+          $content(elem).removeAttr('href');
+
+          // 方法二：替换 <a> 标签为 <span>，保留内容和样式
+          /*
+          const span = $content('<span>').html($content(elem).html());
+          // 复制所有样式
+          const style = $content(elem).attr('style');
+          if (style) {
+            span.attr('style', style);
+          }
+          $content(elem).replaceWith(span);
+          */
+
+          // 方法三：添加 CSS 样式使其不可点击
+          // $content(elem).css('pointer-events', 'none').css('color', 'inherit').css('text-decoration', 'none');
+        }
+      });
+      // 6. 获取最终的 HTML 内容
+      targetContent = $content.html();
+    }
+
+    res.send(targetContent);
+  } catch (error) {
+    console.error('Error fetching content:', error.message);
+    res.status(500).send('Error fetching content');
+  }
 });
 
 
