@@ -466,6 +466,7 @@ app.get('/history', (req, res) => {
   });
 });
 
+const BASE_URL = 'http://xin1265.com'; // 源网站的基准 URL
 // 抓取目标网页内容
 app.get('/fetch-content', async (req, res) => {
   try {
@@ -498,21 +499,38 @@ app.get('/fetch-content', async (req, res) => {
           // 方法一：移除 href 属性，使其不可点击
           $content(elem).removeAttr('href');
 
-          // 方法二：替换 <a> 标签为 <span>，保留内容和样式
-          /*
-          const span = $content('<span>').html($content(elem).html());
-          // 复制所有样式
-          const style = $content(elem).attr('style');
-          if (style) {
-            span.attr('style', style);
-          }
-          $content(elem).replaceWith(span);
-          */
-
-          // 方法三：添加 CSS 样式使其不可点击
-          // $content(elem).css('pointer-events', 'none').css('color', 'inherit').css('text-decoration', 'none');
         }
       });
+
+      // 6. 修改所有 <img> 标签的 src 属性为绝对地址
+      // $content('img').each((i, elem) => {
+      //   const src = $content(elem).attr('src');
+      //   if (src) {
+      //     // 检查 src 是否为相对地址
+      //     if (src.startsWith('/')) {
+      //       // 将相对地址转换为绝对地址
+      //       const absoluteSrc = `${BASE_URL}${src}`;
+      //       $content(elem).attr('src', absoluteSrc);
+      //     } else if (!src.startsWith('http://') && !src.startsWith('https://')) {
+      //       // 如果 src 不是以 http:// 或 https:// 开头的绝对地址，则按需要处理
+      //       // 例如，如果是相对路径 'images/10035.jpg'
+      //       const absoluteSrc = `${BASE_URL}/${src}`;
+      //       $content(elem).attr('src', absoluteSrc);
+      //     }
+      //   }
+      // });
+
+      // 5. 修改导航栏中的 <a> 标签：将 value 属性替换为 href 属性
+      $content('#nav2 a').each((i, elem) => {
+        const value = $content(elem).attr('value');
+        if (value) {
+          $content(elem).attr('href', value); // 设置新的 href 属性
+          $content(elem).removeAttr('value'); // 移除旧的 value 属性
+          console.log(`Replaced value="${value}" with href="${value}" in <a> tag`);
+        }
+      });
+
+
       // 6. 获取最终的 HTML 内容
       targetContent = $content.html();
     }
