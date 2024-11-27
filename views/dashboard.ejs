@@ -552,126 +552,167 @@
     </div>
 
     <!-- 引入 Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-      crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+crossorigin="anonymous"></script>
 
-    <!-- 引入 Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- 引入 Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <!-- 引入 Flatpickr 中文语言包 -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+<!-- 引入 Flatpickr 中文语言包 -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
 
-    <script>
-      // 初始化 Flatpickr 日期选择器为中文
-      flatpickr("#drawTime1, #drawTime2, #drawTime3", {
-        enableTime: true,
-        dateFormat: "Y-m-d H:i:ss",
-        locale: "zh",
-        time_24hr: true,
-        defaultHour: 0,
-        defaultMinute: 0,
-        defaultSeconds: 0,
-        defaultDate: new Date().setHours(22, 30, 0, 0)
-      });
+<script>
+// 初始化 Flatpickr 日期选择器为中文
+flatpickr("#drawTime1, #drawTime2, #drawTime3", {
+  enableTime: true,
+  dateFormat: "Y-m-d H:i:S",
+  locale: "zh",
+  time_24hr: true,
+  defaultHour: 22,
+  defaultMinute: 30,
+  defaultSeconds: 0,
+  defaultDate: new Date().setHours(22, 30, 0, 0)
+});
 
-      // 前端脚本，用于实时计算号码属性
-      function calculateAttributes(num, index, section) {
-        if (num === '') {
-          document.getElementById(`attributes${section}${index}`).innerHTML = '';
-          return;
+// 前端脚本，用于实时计算号码属性
+function calculateAttributes(num, index, section) {
+  if (num === '') {
+    document.getElementById(`attributes${section}${index}`).innerHTML = '';
+    return;
+  }
+
+  // 发起请求到后端，获取号码属性
+  fetch(`/number-info/${num}`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById(`attributes${section}${index}`).innerHTML = `
+        <div class="attributes-span">
+          生肖：${data.zodiac}，五行：${data.element}，波色：${data.color}，合数：${data.sumParity}
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error('Error fetching number attributes:', error);
+      document.getElementById(`attributes${section}${index}`).innerHTML = '<span class="text-danger">无法获取属性</span>';
+    });
+}
+
+function setupNumberInputs() {
+  for (let section = 1; section <= 3; section++) {
+    for (let i = 1; i <= 7; i++) {
+      const input = document.getElementById(`number${section}${i}`);
+      if (input) {
+        input.addEventListener('change', function () {
+          calculateAttributes(this.value, i, section);
+        });
+      }
+    }
+  }
+}
+
+window.onload = setupNumberInputs;
+
+// AJAX 删除记录
+let deleteRecordId = null;
+
+function openDeleteModal(id) {
+  deleteRecordId = id;
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  deleteModal.show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function () {
+  if (deleteRecordId !== null) {
+    deleteRecord(deleteRecordId);
+    deleteRecordId = null;
+    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+    deleteModal.hide();
+  }
+});
+
+function deleteRecord(id) {
+  // 获取 CSRF 令牌
+  const csrfToken = document.querySelector('input[name="_csrf"]').value;
+
+  fetch('/delete-record', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `_csrf=${encodeURIComponent(csrfToken)}&id=${encodeURIComponent(id)}`
+  })
+    .then(response => {
+      if (response.ok) {
+        // 删除成功，移除记录行
+        const row = document.getElementById(`record-${id}`);
+        if (row) {
+          row.remove();
         }
-
-        // 发起请求到后端，获取号码属性
-        fetch(`/number-info/${num}`)
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById(`attributes${section}${index}`).innerHTML = `
-              <div class="attributes-span">
-                生肖：${data.zodiac}，五行：${data.element}，波色：${data.color}，合数：${data.sumParity}
-              </div>
-            `;
-          })
-          .catch(error => {
-            console.error('Error fetching number attributes:', error);
-            document.getElementById(`attributes${section}${index}`).innerHTML = '<span class="text-danger">无法获取属性</span>';
-          });
+        // 显示成功提示
+        showAlert('删除成功！', 'success');
+      } else {
+        return response.text().then(text => { throw new Error(text) });
       }
+    })
+    .catch(error => {
+      alert('删除失败: ' + error.message);
+    });
+}
 
-      function setupNumberInputs() {
-        for (let section = 1; section <= 3; section++) {
-          for (let i = 1; i <= 7; i++) {
-            const input = document.getElementById(`number${section}${i}`);
-            if (input) {
-              input.addEventListener('change', function () {
-                calculateAttributes(this.value, i, section);
-              });
-            }
-          }
-        }
+// 显示提示信息
+function showAlert(message, type) {
+  const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = `
+    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
+    </div>
+  `;
+  alertPlaceholder.append(wrapper);
+  // 自动移除提示信息（可选）
+  setTimeout(() => {
+    var alert = bootstrap.Alert.getOrCreateInstance(wrapper.querySelector('.alert'));
+    alert.close();
+  }, 3000);
+}
+
+// 激活选项卡根据URL哈希
+document.addEventListener("DOMContentLoaded", function () {
+  var hash = window.location.hash;
+  if (hash) {
+    var triggerEl = document.querySelector(`button[data-bs-target="${hash}"]`);
+    if (triggerEl) {
+      var tab = new bootstrap.Tab(triggerEl);
+      tab.show();
+    }
+  }
+
+  // 监听选项卡切换，更新URL哈希
+  var tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
+  tabButtons.forEach(function(button) {
+    button.addEventListener('shown.bs.tab', function (event) {
+      var target = event.target.getAttribute('data-bs-target');
+      if (target) {
+        history.replaceState(null, null, target);
       }
+    });
+  });
 
-      window.onload = setupNumberInputs;
-
-      // AJAX 删除记录
-      let deleteRecordId = null;
-
-      function openDeleteModal(id) {
-        deleteRecordId = id;
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        deleteModal.show();
+  // 监听哈希变化以动态切换选项卡
+  window.addEventListener("hashchange", function () {
+    var newHash = window.location.hash;
+    if (newHash) {
+      var newTriggerEl = document.querySelector(`button[data-bs-target="${newHash}"]`);
+      if (newTriggerEl) {
+        var newTab = new bootstrap.Tab(newTriggerEl);
+        newTab.show();
       }
+    }
+  });
+});
+</script>
 
-      document.getElementById('confirmDelete').addEventListener('click', function () {
-        if (deleteRecordId !== null) {
-          deleteRecord(deleteRecordId);
-          deleteRecordId = null;
-          const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
-          deleteModal.hide();
-        }
-      });
-
-      function deleteRecord(id) {
-        // 获取 CSRF 令牌
-        const csrfToken = document.querySelector('input[name="_csrf"]').value;
-
-        fetch('/delete-record', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `_csrf=${encodeURIComponent(csrfToken)}&id=${encodeURIComponent(id)}`
-        })
-          .then(response => {
-            if (response.ok) {
-              // 删除成功，移除记录行
-              const row = document.getElementById(`record-${id}`);
-              if (row) {
-                row.remove();
-              }
-              // 显示成功提示
-              showAlert('删除成功！', 'success', 1000);
-            } else {
-              return response.text().then(text => { throw new Error(text) });
-            }
-          })
-          .catch(error => {
-            alert('删除失败: ' + error.message);
-          });
-      }
-
-      // 显示提示信息
-      function showAlert(message, type) {
-        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = `
-          <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
-          </div>
-        `;
-        alertPlaceholder.append(wrapper);
-      }
-    </script>
   </div>
 </body>
 
