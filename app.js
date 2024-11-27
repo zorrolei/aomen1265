@@ -462,51 +462,106 @@ app.get('/latest-result', (req, res) => {
 
 
 // 获取指定分类的历史记录
+// 获取指定分类的历史记录
 app.get('/history', (req, res) => {
   const section = req.query.section || '1'; // 默认分类为 1
 
-  // 获取当前服务器时间，格式为 UTC ISO 字符串
-  const currentTime = new Date().toISOString();
+  const currentTime = new Date();
 
-  // 查询指定分类的所有已开奖的记录，按 drawTime 降序排列
-  db.all('SELECT * FROM records WHERE section = ? AND drawTime <= ? ORDER BY drawTime DESC', [section, currentTime], (err, rows) => {
+  // 查询指定分类的最后一条已开奖的记录（drawTime <= currentTime）
+  db.get('SELECT * FROM records WHERE drawTime <= ? AND section = ? ORDER BY drawTime DESC LIMIT 1', [currentTime.toISOString(), section], (err, lastRecord) => {
     if (err) {
-      console.error('查询历史记录失败:', err.message);
-      return res.status(500).json({ error: '查询历史记录失败' });
+      console.error('查询最后一条记录失败:', err.message);
+      return res.status(500).json({ error: '查询最后一条记录失败' });
     }
 
-    if (rows.length === 0) {
+    // 如果没有已开奖的记录，返回404
+    if (!lastRecord) {
       return res.status(404).json({ error: '没有历史记录' });
     }
 
-    // 处理每一条记录，解析 numbers 字段
-    const records = rows.map(record => {
-      let numbersWithAttributes = [];
-      try {
-        numbersWithAttributes = JSON.parse(record.numbers);
-      } catch (e) {
-        console.error('解析号码失败:', e);
-      }
+    const lastDrawTime = new Date(lastRecord.drawTime).getTime();
+    const waitTime = lastDrawTime + 3 * 60 * 1000; // 加三分钟
+    const currentTimeInMillis = currentTime.getTime(); // 当前时间的毫秒表示
 
-      // 为每个号码添加 class 属性
-      numbersWithAttributes = numbersWithAttributes.map(item => {
-        const className = getClassForColor(item.color);
-        return {
-          ...item,
-          class: className
-        };
+    // 如果当前时间小于等待时间，返回早于最后开奖的历史记录
+    if (currentTimeInMillis < waitTime) {
+      db.all('SELECT * FROM records WHERE section = ? AND drawTime < ? ORDER BY drawTime DESC', [section, lastRecord.drawTime], (err, rows) => {
+        if (err) {
+          console.error('查询历史记录失败:', err.message);
+          return res.status(500).json({ error: '查询历史记录失败' });
+        }
+
+        if (rows.length === 0) {
+          return res.status(404).json({ error: '没有历史记录' });
+        }
+
+        // 处理每一条记录，解析 numbers 字段
+        const records = rows.map(record => {
+          let numbersWithAttributes = [];
+          try {
+            numbersWithAttributes = JSON.parse(record.numbers);
+          } catch (e) {
+            console.error('解析号码失败:', e);
+          }
+
+          // 为每个号码添加 class 属性
+          numbersWithAttributes = numbersWithAttributes.map(item => {
+            const className = getClassForColor(item.color);
+            return {
+              ...item,
+              class: className
+            };
+          });
+
+          return {
+            period: record.period,
+            drawTime: record.drawTime,
+            numbers: numbersWithAttributes
+          };
+        });
+
+        res.json({ records });
       });
+    } else {
+      // 当前时间已超过最后一条记录的开奖时间，返回所有历史记录，包括最后一条记录
+      db.all('SELECT * FROM records WHERE section = ? AND drawTime <= ? ORDER BY drawTime DESC', [section, currentTime.toISOString()], (err, rows) => {
+        if (err) {
+          console.error('查询历史记录失败:', err.message);
+          return res.status(500).json({ error: '查询历史记录失败' });
+        }
 
-      return {
-        period: record.period,
-        drawTime: record.drawTime,
-        numbers: numbersWithAttributes
-      };
-    });
+        // 处理所有记录并返回
+        const records = rows.map(record => {
+          let numbersWithAttributes = [];
+          try {
+            numbersWithAttributes = JSON.parse(record.numbers);
+          } catch (e) {
+            console.error('解析号码失败:', e);
+          }
 
-    res.json({ records });
+          // 为每个号码添加 class 属性
+          numbersWithAttributes = numbersWithAttributes.map(item => {
+            const className = getClassForColor(item.color);
+            return {
+              ...item,
+              class: className
+            };
+          });
+
+          return {
+            period: record.period,
+            drawTime: record.drawTime,
+            numbers: numbersWithAttributes
+          };
+        });
+
+        res.json({ records });
+      });
+    }
   });
 });
+
 
 const BASE_URL = 'http://xin1265.com'; // 源网站的基准 URL
 // 抓取目标网页内容
