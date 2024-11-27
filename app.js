@@ -72,7 +72,7 @@ const adminUser = {
 
 // 号码属性计算函数（请确保该函数已正确定义）
 function getNumberAttributes(number) {
-  number = parseInt(number, 10);
+  const numberInt = parseInt(number, 10); // 用于属性计算
   const zodiacMap = {
     '鼠': [5, 17, 29, 41],
     '牛': [4, 16, 28, 40],
@@ -110,35 +110,35 @@ function getNumberAttributes(number) {
   let zodiac, element, color, sumParity;
 
   for (const [key, nums] of Object.entries(zodiacMap)) {
-    if (nums.includes(number)) {
+    if (nums.includes(numberInt)) {
       zodiac = key;
       break;
     }
   }
 
   for (const [key, nums] of Object.entries(elementMap)) {
-    if (nums.includes(number)) {
+    if (nums.includes(numberInt)) {
       element = key;
       break;
     }
   }
 
   for (const [key, nums] of Object.entries(colorMap)) {
-    if (nums.includes(number)) {
+    if (nums.includes(numberInt)) {
       color = key;
       break;
     }
   }
 
   for (const [key, nums] of Object.entries(sumParityMap)) {
-    if (nums.includes(number)) {
+    if (nums.includes(numberInt)) {
       sumParity = key;
       break;
     }
   }
 
   return {
-    number: number,
+    number: number, // 保留原始字符串形式的号码
     zodiac,
     element,
     color,
@@ -278,9 +278,9 @@ app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
   let numbersArray = [];
 
   if (Array.isArray(numbers)) {
-    numbersArray = numbers.map(num => num.trim()).filter(num => num !== '');
+    numbersArray = numbers.map(num => num.trim().padStart(2, '0')).filter(num => num !== '');
   } else if (typeof numbers === 'string') {
-    numbersArray = numbers.split(',').map(num => num.trim()).filter(num => num !== '');
+    numbersArray = numbers.split(',').map(num => num.trim().padStart(2, '0')).filter(num => num !== '');
   }
 
   if (!period || !numbersArray || numbersArray.length !== 7 || !drawTime) {
@@ -354,10 +354,9 @@ app.post('/delete-record', authenticateToken, (req, res) => {
 
 // 最新开奖结果的 API 端点
 app.get('/latest-result', (req, res) => {
-  const section = req.query.section || '1'; // 默认分类为 1
+  const section = req.query.section || '1';
   const currentTime = new Date();
 
-  // 查询当前时间之前的最新一条指定分类的记录
   db.get('SELECT * FROM records WHERE drawTime <= ? AND section = ? ORDER BY drawTime DESC LIMIT 1', [currentTime.toISOString(), section], (err, currentRecord) => {
     if (err) {
       console.error('查询当前记录失败:', err.message);
@@ -375,17 +374,6 @@ app.get('/latest-result', (req, res) => {
         return res.status(500).json({ error: '查询下一期开奖时间失败' });
       }
 
-      let countdownTime;
-      if (nextRow) {
-        countdownTime = new Date(nextRow.drawTime).getTime(); // 转换为时间戳
-        console.log('下一期开奖时间:', new Date(nextRow.drawTime).toLocaleString());
-      } else {
-        // 如果没有下一期开奖时间，设置一个默认值（例如1小时后）
-        let defaultNextTime = new Date(currentTime.getTime() + 24 * 3600 * 1000); // 24小时后
-        countdownTime = defaultNextTime.getTime();
-        console.log('默认下一期开奖时间:', defaultNextTime.toLocaleString());
-      }
-
       let numbersWithAttributes = [];
       try {
         numbersWithAttributes = JSON.parse(currentRecord.numbers);
@@ -393,30 +381,84 @@ app.get('/latest-result', (req, res) => {
         console.error('解析号码失败:', e);
       }
 
+      // 定义每个号码揭晓的时间点（以毫秒为单位）
+      const ballRevealTimes = [120000, 130000, 140000, 150000, 160000, 170000, 180000]; // 每个球的揭晓时间
+      const totalRevealTime = 180000; // 所有球揭晓完的总时间
+
+      let timeElapsed = currentTime - new Date(currentRecord.drawTime);
+
+      // 定义未揭晓的号码需要显示的特殊文字
+      const specialWords = [
+        '澳<br>与',
+        '门<br>官',
+        '全<br>方',
+        '民<br>网',
+        '彩<br>同',
+        '开<br>步',
+        '奖<br>中'
+      ];
+
+      // 准备返回的数据
       const data = {};
-      numbersWithAttributes.forEach((item, index) => {
-        const num = item.number;
-        const className = getClassForColor(item.color);
-        data[index + 1] = {
-          tit: num,
-          wx: item.element || '',
-          tit0: item.zodiac || '',
-          class: className
-        };
-      });
+      for (let i = 0; i < 7; i++) {
+        const item = numbersWithAttributes[i];
+        const num = item ? item.number : '';
+        const className = item ? getClassForColor(item.color) : '';
+
+        if (timeElapsed >= ballRevealTimes[i]) {
+          // 已揭晓的号码
+          data[i + 1] = {
+            tit: num,
+            wx: item.element || '',
+            tit0: item.zodiac || '',
+            class: className,
+            isRevealed: true
+          };
+        } else {
+          // 未揭晓的号码，返回特殊文字
+          data[i + 1] = {
+            specialWord: specialWords[i],
+            class: 'redBoClass',
+            isRevealed: false
+          };
+        }
+      }
+
+      // 确定状态和倒计时时间
+      let status;
+      let countdownTime;
+
+      if (timeElapsed < 0) {
+        status = 'countdown'; // 倒计时阶段
+        countdownTime = new Date(currentRecord.drawTime).getTime();
+      } else if (timeElapsed >= 0 && timeElapsed < totalRevealTime) {
+        status = 'drawing'; // 正在开奖
+        countdownTime = null; // 不需要倒计时
+      } else {
+        status = 'finished'; // 开奖结束
+        if (nextRow) {
+          countdownTime = new Date(nextRow.drawTime).getTime();
+        } else {
+          // 如果没有下一期开奖时间，设置倒计时为24小时后
+          countdownTime = currentTime.getTime() + 24 * 3600 * 1000;
+        }
+      }
 
       res.json({
         current: {
           period: currentRecord.period,
-          drawTime: new Date(currentRecord.drawTime).getTime(), // 转换为时间戳
+          drawTime: new Date(currentRecord.drawTime).getTime(),
           data: data
         },
+        status: status,
         countdown: countdownTime,
-        serverTime: currentTime.getTime() // 发送时间戳
+        serverTime: currentTime.getTime()
       });
     });
   });
 });
+
+
 
 
 // 获取指定分类的历史记录
@@ -502,23 +544,18 @@ app.get('/fetch-content', async (req, res) => {
         }
       });
 
-      // 6. 修改所有 <img> 标签的 src 属性为绝对地址
-      // $content('img').each((i, elem) => {
-      //   const src = $content(elem).attr('src');
-      //   if (src) {
-      //     // 检查 src 是否为相对地址
-      //     if (src.startsWith('/')) {
-      //       // 将相对地址转换为绝对地址
-      //       const absoluteSrc = `${BASE_URL}${src}`;
-      //       $content(elem).attr('src', absoluteSrc);
-      //     } else if (!src.startsWith('http://') && !src.startsWith('https://')) {
-      //       // 如果 src 不是以 http:// 或 https:// 开头的绝对地址，则按需要处理
-      //       // 例如，如果是相对路径 'images/10035.jpg'
-      //       const absoluteSrc = `${BASE_URL}/${src}`;
-      //       $content(elem).attr('src', absoluteSrc);
-      //     }
-      //   }
-      // });
+      // 移除具有 class="zzhl" 的元素
+      $content('.zzhl').remove();
+
+      // 移除高手榜图片
+      $content('img').each((i, elem) => {
+        const src = $content(elem).attr('src');
+        const className = $content(elem).attr('class');
+        if (src === '/images/10009.jpg' && className?.includes('lazyloaded')) {
+          $content(elem).remove();
+          console.log(`Removed image with src="/images/10009.jpg" and class="lazyloaded"`);
+        }
+      });
 
       // 5. 修改导航栏中的 <a> 标签：将 value 属性替换为 href 属性
       $content('#nav2 a').each((i, elem) => {
