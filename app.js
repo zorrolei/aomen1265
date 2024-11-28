@@ -612,7 +612,7 @@ app.get('/fetch-content', async (req, res) => {
         }
       });
 
-      // 5. 修改导航栏中的 <a> 标签：将 value 属性替换为 href 属性
+      // 修改导航栏中的 <a> 标签：将 value 属性替换为 href 属性
       $content('#nav2 a').each((i, elem) => {
         const value = $content(elem).attr('value');
         if (value) {
@@ -621,6 +621,93 @@ app.get('/fetch-content', async (req, res) => {
           console.log(`Replaced value="${value}" with href="${value}" in <a> tag`);
         }
       });
+
+      
+      // **交换特定 <li> 元素的位置**
+      const li1 = $content('a[href="#1x1m"]').parent();
+      const li2 = $content('a[href="#jy4x"]').parent();
+
+      if (li1.length && li2.length) {
+        // 创建临时占位符
+        const placeholder = $content('<li></li>');
+        li1.before(placeholder);
+        li2.before(li1);
+        placeholder.replaceWith(li2);
+        console.log('Swapped <li> elements: "一肖一码" and "六肖中特"');
+      } else {
+        console.warn('未找到需要交换的 <li> 元素');
+      }
+
+    // **处理块 A 和块 B 的交换**
+      // 1. 获取块 A: 父级 <div> 的 id="wuxiao"
+      const originalBlockA = $content('#wuxiao').parent();
+      if (!originalBlockA.length) {
+        console.warn('未找到 id="wuxiao" 的父级 <div>');
+      }
+
+      // 2. 获取块 B:
+      //    a. 包含文字“澳门全民彩《六肖中特》”的最上级 <table>
+      //    b. 紧挨着该 <table> 的 <div>
+      const targetText = '澳门全民彩《六肖中特》';
+
+      // 查找包含目标文字的 <table>
+      const blockBTable = $content('table').filter(function () {
+        return $content(this).text().includes(targetText);
+      }).first();
+
+      if (!blockBTable.length) {
+        console.warn(`未找到包含文字 "${targetText}" 的 <table> 标签`);
+      }
+
+      // 查找紧接在该 <table> 后面的 <div>
+      const blockBDiv = blockBTable.next('div');
+      if (!blockBDiv.length) {
+        console.warn(`未找到 <table> 标签 "${targetText}" 之后的紧接 <div> 标签`);
+      }
+
+      // 3. 处理块 A
+      if (originalBlockA.length) {
+        // 给块 A 添加新的 ID="1x1m"
+        originalBlockA.attr('id', '1x1m');
+        console.log('为块 A 添加了新的 ID="1x1m"');
+
+        // 移除页面上原先拥有 ID="1x1m" 的元素，排除当前块 A
+        $content('#1x1m').not(originalBlockA).remove();
+        console.log('移除了原先拥有 ID="1x1m" 的元素');
+      }
+
+      // 4. 处理块 B
+      if (blockBTable.length && blockBDiv.length) {
+        // 给块 B 的 <table> 添加新的 ID="jy4x"
+        blockBTable.attr('id', 'jy4x');
+        console.log('为块 B 的 <table> 添加了新的 ID="jy4x"');
+
+        // 移除页面上原先拥有 ID="jy4x" 的元素，排除当前块 B 的 <table>
+        $content('#jy4x').not(blockBTable).remove();
+        console.log('移除了原先拥有 ID="jy4x" 的元素');
+      }
+
+      // 5. 交换块 A 和块 B 的位置
+      if (originalBlockA.length && blockBTable.length && blockBDiv.length) {
+        // 创建占位符来保存块 A 的位置
+        const placeholder = $content('<div></div>');
+        originalBlockA.before(placeholder);
+
+        // 移动块 B 的 <table> 和 <div> 到块 A 的位置
+        blockBTable.insertBefore(placeholder);
+        blockBDiv.insertBefore(placeholder);
+
+        // 移动块 A 到块 B 的原位置
+        placeholder.before(originalBlockA);
+
+        // 移除占位符
+        placeholder.remove();
+
+        console.log('Swapped Block A (id="1x1m") with Block B (id="jy4x" and adjacent div)');
+      } else {
+        console.warn('未找到需要交换的块 A 或块 B');
+      }
+
 
 
       // 6. 获取最终的 HTML 内容
