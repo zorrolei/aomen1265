@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>开奖信息</title>
+	<style>
+		body, html {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, sans-serif;
+			background-color: #f5f5f5;
+		}
+		table {
+			width: 80%;
+			margin: 50px auto;
+			border-collapse: collapse;
+			text-align: center;
+			background-color: #fff;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+		td {
+			border: 1px solid #ddd;
+			padding: 20px;
+			font-size: 18px;
+		}
+		.random-zodiacs {
+			font-weight: bold;
+			color: #ff5722;
+		}
+		.draw-status {
+			font-weight: bold;
+			color: #4caf50;
+		}
+	</style>
+</head>
+<body>
+<table>
+	<thead>
+	<tr>
+		<th>期数</th>
+		<th>⑥肖</th>
+		<th>开奖状态</th>
+	</tr>
+	</thead>
+	<tbody id="records-table-body">
+	<!-- 前4条历史记录 -->
+	<!-- JavaScript 将动态插入历史记录 -->
+
+	<!-- 当前记录 -->
+	<tr>
+		<td id="current-period">338</td>
+		<td>⑥肖→ <span id="current-random-zodiacs" class="random-zodiacs">【猪羊龙狗猴牛】</span></td>
+		<td id="current-draw-status" class="draw-status">开:？00准</td>
+	</tr>
+	</tbody>
+</table>
+
+<!-- 引入前端脚本 -->
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const recordsTableBody = document.getElementById('records-table-body');
+		const currentPeriodTd = document.getElementById('current-period');
+		const currentZodiacSpan = document.getElementById('current-random-zodiacs');
+		const currentDrawStatusTd = document.getElementById('current-draw-status');
+
+		// 函数：获取组合数据
+		async function fetchCombinedData() {
+			try {
+				const response = await fetch('/combined-data', {
+					method: 'GET',
+					credentials: 'same-origin', // 确保发送 Cookie
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
+				if (!response.ok) {
+					throw new Error(`HTTP error! 状态: ${response.status}`);
+				}
+				const data = await response.json();
+				return data;
+			} catch (error) {
+				console.error('获取组合数据失败:', error);
+				return null;
+			}
+		}
+
+		// 函数：更新历史记录
+		function updateHistoricalRecords(historicalRecords) {
+			// 清空已有的历史记录（如果有）
+			const existingRows = recordsTableBody.querySelectorAll('.historical-record');
+			existingRows.forEach(row => row.remove());
+
+			historicalRecords.forEach(record => {
+				const tr = document.createElement('tr');
+				tr.classList.add('historical-record');
+
+				const periodTd = document.createElement('td');
+				periodTd.textContent = record.period;
+
+				const zodiacsTd = document.createElement('td');
+				zodiacsTd.innerHTML = `⑥肖→ <span class="random-zodiacs">【${record.randomZodiacs.join('')}】</span>`;
+
+				const drawStatusTd = document.createElement('td');
+				drawStatusTd.textContent = `开:${record.lastNumber}准`;
+
+				tr.appendChild(periodTd);
+				tr.appendChild(zodiacsTd);
+				tr.appendChild(drawStatusTd);
+
+				// 插入到表格的顶部（在当前记录之前）
+				recordsTableBody.insertBefore(tr, recordsTableBody.lastElementChild);
+			});
+		}
+
+		// 函数：更新当前记录
+		function updateCurrentRecord(currentRecord) {
+			if (!currentRecord) {
+				currentZodiacSpan.innerHTML = '【未知】';
+				currentDrawStatusTd.textContent = '开:？00准';
+				return;
+			}
+
+			const { period, randomZodiacs, drawStatus } = currentRecord;
+
+			// 更新期数
+			if (period) {
+				currentPeriodTd.textContent = period;
+			}
+
+			// 更新随机生肖
+			if (Array.isArray(randomZodiacs) && randomZodiacs.length === 6) {
+				currentZodiacSpan.innerHTML = `【${randomZodiacs.join('')}】`;
+			} else {
+				currentZodiacSpan.innerHTML = '【未知】';
+			}
+
+			// 更新开奖状态
+			if (drawStatus) {
+				currentDrawStatusTd.textContent = drawStatus;
+			} else {
+				currentDrawStatusTd.textContent = '开:？00准';
+			}
+		}
+
+		// 主函数：获取数据并更新页面
+		async function initialize() {
+			const combinedData = await fetchCombinedData();
+			if (!combinedData) {
+				return;
+			}
+
+			const { historical, current } = combinedData;
+
+			// 更新历史记录
+			if (Array.isArray(historical)) {
+				updateHistoricalRecords(historical);
+			}
+
+			// 更新当前记录
+			if (current) {
+				updateCurrentRecord(current);
+			}
+		}
+
+		// 初始调用
+		initialize();
+
+
+	});
+</script>
+</body>
+</html>

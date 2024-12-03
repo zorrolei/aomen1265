@@ -9,11 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="Shortcut Icon" href="favicon.ico">
     <title>澳门全民彩 - 澳门全民彩！</title>
-    <link href="static/dayingjia/css/style.css" rel="stylesheet" type="text/css">
-    <link href="static/dayingjia/css/common.css" rel="stylesheet" type="text/css">
-    <link href="static/dayingjia/css/weui.min.css" rel="stylesheet" type="text/css">
-    <link href="static/dayingjia/css/jquery-weui.min.css" rel="stylesheet" type="text/css">
-    <script src="static/dayingjia/js/jquery.js"></script>
+    <link href="img/sty1e.css" rel="stylesheet" type="text/css">
     <style>
         .cgi-body {
             max-width: 800px;
@@ -64,14 +60,13 @@
     </style>
 </head>
 
-<body>
-    <div class="cgi-body"></div>
+<body id="container">
     <script>
         fetch('/fetch-content') // 确保使用完整的 URL
             .then(response => response.text())
             .then(data => {
                 // 使用 querySelector 获取单个元素
-                const cgiBody = document.querySelector('.cgi-body');
+                const cgiBody = document.querySelector('#container');
                 if (cgiBody) {
                     cgiBody.innerHTML = data;
                 }

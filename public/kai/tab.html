@@ -47,13 +47,13 @@
             color: #07c160;
         }
 
-        @media screen and (max-width:600px) {
+        @media screen and (max-width: 600px) {
             .kj .kj-box ul li span {
                 width: 35px !important;
                 height: 35px !important;
             }
 
-            .kj .kj-box ul li span>lable {
+            .kj .kj-box ul li span > lable {
                 margin-top: 8px !important;
             }
 
@@ -100,7 +100,7 @@
             font-family: Arial;
         }
 
-        .kj .kj-box ul li span>lable {
+        .kj .kj-box ul li span > lable {
             margin-left: -.23rem;
             display: inline-block;
             margin-left: -.1rem;
@@ -115,7 +115,7 @@
 
         .kj .kj-box ul li:nth-child(7) span {
             display: inline-block;
-            width: 100%px;
+            width: 100% px;
             line-height: 2.5rem;
             font-size: 2.0rem;
             font-weight: bold;
@@ -152,13 +152,13 @@
             font-size: .9rem;
         }
 
-        .kj-lotto-box>ul {
+        .kj-lotto-box > ul {
             display: flex;
             justify-content: space-between;
 
         }
 
-        .kj-lotto-box>ul>li {
+        .kj-lotto-box > ul > li {
 
             text-align: center;
             font-size: 14px;
@@ -172,7 +172,7 @@
             background: linear-gradient(to top, #eee, #fff);
         }
 
-        .kj-lotto-box>ul>li span {
+        .kj-lotto-box > ul > li span {
             display: inline-block;
             /*display:block;*/
             width: 35px;
@@ -189,7 +189,7 @@
             /* 设置号码之间的间距 */
         }
 
-        .kj-lotto-box>ul>li>em {
+        .kj-lotto-box > ul > li > em {
             margin-top: 5px;
             display: block;
             line-height: 1;
@@ -198,7 +198,8 @@
             text-align: center;
         }
 
-        .kj-lotto-box>ul>li {}
+        .kj-lotto-box > ul > li {
+        }
 
         .border-box .head {
             margin-bottom: 10px;
@@ -290,14 +291,14 @@
             padding: 10px;
         }
 
-        @media screen and (max-width:414px) {
-            .kj-lotto-box>ul>li {
+        @media screen and (max-width: 414px) {
+            .kj-lotto-box > ul > li {
 
                 text-align: center;
                 font-size: 12px;
                 width: 100%;
                 height: 70px;
-                padding: 6px 0px 6px 0px;
+                padding: 6px 4px 6px 4px;
                 border: solid 1px #ddd;
                 box-sizing: border-box;
                 border-radius: 6px;
@@ -310,239 +311,264 @@
 </head>
 
 <body>
-    <main class="kj">
-        <div class="border-box">
-            <div class="tab-container">
-                <div class="tab active" data-section="1">澳门全民彩</div>
-                <div class="tab" data-section="2">澳门六合彩</div>
-                <div class="tab" data-section="3">香港六合彩</div>
-            </div>
-
-            <div
-                style="display: flex; align-items: center; margin-bottom: 16px; font-size: 14px; justify-content: space-between;">
-                <div>当前第 <span id="qishu"></span> 期</div>
-                <span id="djs">倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span
-                        class="second">00</span></span>
-                <div> <a href="history.html?section=1" class="history-link" target="_blank">历史记录</a>></div>
-            </div>
-
-            <div class="kj-lotto-box" id="jingtaihtml" style="display: flex; align-items: center;">
-
-                <ul>
-                    <li><span class="p" id="nowball0">00</span></li>
-                    <li><span class="p" id="nowball1">00</span></li>
-                    <li><span class="p" id="nowball2">00</span></li>
-                    <li><span class="p" id="nowball3">00</span></li>
-                    <li><span class="p" id="nowball4">00</span></li>
-                    <li><span class="p" id="nowball5">00</span></li>
-                    <li class="jianhao"><span><img src="/images/jianhao1.png" alt=""></span></li>
-                    <li><span class="p" id="nowball6">00</span></li>
-                </ul>
-            </div>
+<main class="kj">
+    <div class="border-box">
+        <div class="tab-container">
+            <div class="tab active" data-section="1">澳门全民彩</div>
+            <div class="tab" data-section="2">澳门六合彩</div>
+            <div class="tab" data-section="3">香港六合彩</div>
         </div>
 
+        <div
+                style="display: flex; align-items: center; margin-bottom: 16px; font-size: 14px; justify-content: space-between;">
+            <div>当前第 <span id="qishu"></span> 期</div>
+            <span id="djs">倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span
+                    class="second">00</span></span>
+            <div><a href="history.html?section=1" class="history-link" target="_blank">历史记录</a>></div>
+        </div>
 
-    </main>
+        <div class="kj-lotto-box" id="jingtaihtml" style="display: flex; align-items: center;">
 
-    <script src="js/jquery.min.js"></script>
-    <!-- <script src="js/d.js"></script> -->
+            <ul>
+                <li><span class="p" id="nowball0">00</span></li>
+                <li><span class="p" id="nowball1">00</span></li>
+                <li><span class="p" id="nowball2">00</span></li>
+                <li><span class="p" id="nowball3">00</span></li>
+                <li><span class="p" id="nowball4">00</span></li>
+                <li><span class="p" id="nowball5">00</span></li>
+                <li class="jianhao"><span><img src="/images/jianhao1.png" alt=""></span></li>
+                <li><span class="p" id="nowball6">00</span></li>
+            </ul>
+        </div>
+    </div>
 
 
-    <script>
-        $(document).ready(function () {
-            var startDjs = 0;
-            var currentSection = '1';
-            var pollTimer;
-            var timer;
+</main>
 
-            var currentPeriod = '';
+<script src="js/jquery.min.js"></script>
+<!-- <script src="js/d.js"></script> -->
 
-            // 初始化
-            init();
 
-            function init() {
-                bindTabEvents();
-                getBall(currentSection); // 确保传递 currentSection
-            }
+<script>
+    $(document).ready(function () {
+        var startDjs = 0;
+        var currentSection = '1';
+        var pollTimer;
+        var timer;
 
-            function bindTabEvents() {
-                $('.tab').click(function () {
-                    $('.tab').removeClass('active');
-                    $(this).addClass('active');
+        var currentPeriod = '';
 
-                    // 获取选中的 section
-                    currentSection = $(this).data('section').toString();
+        // 初始化
+        init();
 
-                    // 重置倒计时和标志位
-                    startDjs = 0;
-                    currentPeriod = '';
+        function init() {
+            bindTabEvents();
+            getBall(currentSection); // 确保传递 currentSection
+        }
 
-                    // 清除之前的轮询计时器
-                    if (pollTimer) {
-                        clearTimeout(pollTimer);
+        function bindTabEvents() {
+            $('.tab').click(function () {
+                $('.tab').removeClass('active');
+                $(this).addClass('active');
+
+                // 获取选中的 section
+                currentSection = $(this).data('section').toString();
+
+                // 重置倒计时和标志位
+                startDjs = 0;
+                currentPeriod = '';
+
+                // 清除之前的轮询计时器
+                if (pollTimer) {
+                    clearTimeout(pollTimer);
+                }
+
+                // 清空倒计时显示
+                $('#djs').html('倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">00</span>');
+
+                // 更新历史记录链接的 section 参数
+                $('a.history-link').attr('href', 'history.html?section=' + currentSection);
+
+                // 获取并显示选中分类的数据
+                getBall(currentSection);
+            });
+        }
+
+        function getBall(section) {
+            $.ajax({
+                url: '/latest-result',
+                method: 'GET',
+                data: {section: section},
+                success: function (res) {
+                    if (res.error) {
+                        console.error('获取最新结果失败:', res.error);
+                        return;
                     }
 
-                    // 清空倒计时显示
-                    $('#djs').html('倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">00</span>');
+                    // 更新期号
+                    showRiqi(res.current);
 
-                    // 更新历史记录链接的 section 参数
-                    $('a.history-link').attr('href', 'history.html?section=' + currentSection);
+                    // 存储当前的期号
+                    currentPeriod = res.current.period;
 
-                    // 获取并显示选中分类的数据
-                    getBall(currentSection);
-                });
-            }
+                    // 根据状态处理
+                    if (res.status === 'countdown') {
+                        // 显示上一期的开奖号码
+                        showNumbers(res.current.data);
+                        // 启动倒计时
+                        startCountdown(res);
+                    } else if (res.status === 'drawing') {
+                        // 显示 "开奖中"
+                        $('#djs').text('开奖中');
+                        // 显示已揭晓的号码和未揭晓的特殊文字
+                        showAvailableBalls(res.current.data);
+                        // 开始轮询已揭晓的号码
+                        pollAvailableBalls();
+                    } else if (res.status === 'finished') {
+                        // 显示完整的开奖号码
+                        showNumbers(res.current.data);
+                        // 开奖结束，启动下一次倒计时
+                        startCountdown(res);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX 请求失败:', error);
+                },
+                dataType: 'json'
+            });
+        }
 
-            function getBall(section) {
-  $.ajax({
-    url: '/latest-result',
-    method: 'GET',
-    data: { section: section },
-    success: function (res) {
-      if (res.error) {
-        console.error('获取最新结果失败:', res.error);
-        return;
-      }
+        function pollAvailableBalls() {
+            $.ajax({
+                url: '/latest-result',
+                method: 'GET',
+                data: {section: currentSection},
+                success: function (res) {
+                    if (res.error) {
+                        console.error('获取最新结果失败:', res.error);
+                        return;
+                    }
 
-      // 更新期号
-      showRiqi(res.current);
+                    // 根据状态更新倒计时或显示 "开奖中"
+                    if (res.status === 'drawing') {
+                        $('#djs').text('开奖中');
+                        // 显示已揭晓的号码和未揭晓的特殊文字
+                        showAvailableBalls(res.current.data);
+                        // 继续轮询
+                        setTimeout(pollAvailableBalls, 5000); // 每5秒请求一次
+                    } else if (res.status === 'finished') {
+                        // 开奖结束，显示完整的开奖号码
+                        showNumbers(res.current.data);
+                        // 启动下一次倒计时
+                        startCountdown(res);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX 请求失败:', error);
+                },
+                dataType: 'json'
+            });
+        }
 
-      // 存储当前的期号
-      currentPeriod = res.current.period;
-
-      // 根据状态处理
-      if (res.status === 'countdown') {
-        // 显示上一期的开奖号码
-        showNumbers(res.current.data);
-        // 启动倒计时
-        startCountdown(res);
-      } else if (res.status === 'drawing') {
-        // 显示 "开奖中"
-        $('#djs').text('开奖中');
-        // 显示已揭晓的号码和未揭晓的特殊文字
-        showAvailableBalls(res.current.data);
-        // 开始轮询已揭晓的号码
-        pollAvailableBalls();
-      } else if (res.status === 'finished') {
-        // 显示完整的开奖号码
-        showNumbers(res.current.data);
-        // 开奖结束，启动下一次倒计时
-        startCountdown(res);
-      }
-    },
-    error: function (xhr, status, error) {
-      console.error('AJAX 请求失败:', error);
-    },
-    dataType: 'json'
-  });
-}
-
-function pollAvailableBalls() {
-  $.ajax({
-    url: '/latest-result',
-    method: 'GET',
-    data: { section: currentSection },
-    success: function (res) {
-      if (res.error) {
-        console.error('获取最新结果失败:', res.error);
-        return;
-      }
-
-      // 根据状态更新倒计时或显示 "开奖中"
-      if (res.status === 'drawing') {
-        $('#djs').text('开奖中');
-        // 显示已揭晓的号码和未揭晓的特殊文字
-        showAvailableBalls(res.current.data);
-        // 继续轮询
-        setTimeout(pollAvailableBalls, 5000); // 每5秒请求一次
-      } else if (res.status === 'finished') {
-        // 开奖结束，显示完整的开奖号码
-        showNumbers(res.current.data);
-        // 启动下一次倒计时
-        startCountdown(res);
-      }
-    },
-    error: function (xhr, status, error) {
-      console.error('AJAX 请求失败:', error);
-    },
-    dataType: 'json'
-  });
-}
-
-function showAvailableBalls(data) {
-  for (let i = 0; i < 7; i++) {
-    const item = data[i + 1];
-    if (item.isRevealed) {
-      // 已揭晓的号码
-      let html = `<span class="p ${item.class}">${item.tit}</span><div class="sx"><div class="m1x">${item.tit0}/${item.wx}</div></div>`;
-      $(`#nowball${i}`).html(html);
-    } else {
-      // 未揭晓的号码，显示特殊文字
-      let html = `<span class="p ${item.class}">${item.specialWord}</span>`;
-      $(`#nowball${i}`).html(html);
-    }
-  }
-}
-
-
-            function resetCountdownTo24Hours() {
-                // 设置新的倒计时时间为24小时后
-                var newCountdownTime = Date.now() + 24 * 3600 * 1000; // 24小时后
-
-                // 重置倒计时
-                countDown(newCountdownTime, "#djs", function () {
-                    // 倒计时再次结束后的处理，您可以选择再次调用 resetCountdownTo24Hours()
-                    resetCountdownTo24Hours();
-                });
-            }
-            function startCountdown(res) {
-                const serverTime = res.serverTime;
-                const clientTime = Date.now();
-                const timeDifference = clientTime - serverTime;
-                const countdownTime = res.countdown - timeDifference;
-
-                if (res.countdown && countdownTime > 0) {
-                    countDown(countdownTime, "#djs", function () {
-                        // 倒计时结束，开始开奖
-                        startBallReveal();
-                    });
+        function showAvailableBalls(data) {
+            for (let i = 0; i < 7; i++) {
+                const item = data[i + 1];
+                if (item.isRevealed) {
+                    // 已揭晓的号码
+                    let html = `<span class="p ${item.class}">${item.tit}</span><div class="sx"><div class="m1x">${item.tit0}/${item.wx}</div></div>`;
+                    $(`#nowball${i}`).html(html);
                 } else {
-                    $('#djs').text('开奖中');
+                    // 未揭晓的号码，显示特殊文字
+                    let html = `<span class="p ${item.class}">${item.specialWord}</span>`;
+                    $(`#nowball${i}`).html(html);
                 }
             }
+        }
 
 
+        function resetCountdownTo24Hours() {
+            // 设置新的倒计时时间为24小时后
+            var newCountdownTime = Date.now() + 24 * 3600 * 1000; // 24小时后
 
+            // 重置倒计时
+            countDown(newCountdownTime, "#djs", function () {
+                // 倒计时再次结束后的处理，您可以选择再次调用 resetCountdownTo24Hours()
+                resetCountdownTo24Hours();
+            });
+        }
 
-            function showRiqi(data) {
-                $("#qishu").text(data.period);
-                $("#nexttime").text(new Date(data.drawTime).toLocaleString()); // 转换为可读格式
-            }
+        function startCountdown(res) {
+            const countdownTime = res.countdown;
 
-            function showNumbers(data) {
-  for (let i = 0; i < 7; i++) {
-    const item = data[i + 1];
-    if (item.isRevealed) {
-      let html = `<span class="p ${item.class}">${item.tit}</span><div class="sx"><div class="m1x">${item.tit0}/${item.wx}</div></div>`;
-      $(`#nowball${i}`).html(html);
-    }
-  }
-}
-
-
-            function startBallReveal() {
-                showKaijiangHtml();
-
-                // 将倒计时显示为 "开奖中"
+            if (!countdownTime) {
                 $('#djs').text('开奖中');
-
-                // 开始轮询后端，获取已揭晓的号码
-                pollAvailableBalls();
+                startBallReveal();
+                return;
             }
 
+            // 使用服务器时间作为基准来计算倒计时
+            const serverTimeOffset = Date.now() - res.serverTime;
 
-            function showKaijiangHtml() {
-                $("#jingtaihtml").html(`
+            function updateTimer() {
+                // 考虑服务器时间偏移量的实时时间
+                const now = Date.now() - serverTimeOffset;
+                const distance = countdownTime - now;
+
+                if (distance <= 0) {
+                    clearInterval(timer);
+                    $('#djs').text('开奖中');
+                    startBallReveal();
+                    return;
+                }
+
+                // 计算天数
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                // 计算总小时数（包含天数转换为小时）
+                const totalHours = Math.floor(distance / (1000 * 60 * 60));
+                // 计算剩余分钟和秒数
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                $('#djs').html(`倒计时 <span class="hour">${padZero(totalHours)}</span>:<span class="minute">${padZero(minutes)}</span>:<span class="second">${padZero(seconds)}</span>`);
+            }
+
+            // 立即更新一次
+            updateTimer();
+            // 设置定时器
+            if (timer) clearInterval(timer);
+            timer = setInterval(updateTimer, 1000);
+        }
+
+
+        function showRiqi(data) {
+            $("#qishu").text(data.period);
+            $("#nexttime").text(new Date(data.drawTime).toLocaleString()); // 转换为可读格式
+        }
+
+        function showNumbers(data) {
+            for (let i = 0; i < 7; i++) {
+                const item = data[i + 1];
+                if (item.isRevealed) {
+                    let html = `<span class="p ${item.class}">${item.tit}</span><div class="sx"><div class="m1x">${item.tit0}/${item.wx}</div></div>`;
+                    $(`#nowball${i}`).html(html);
+                }
+            }
+        }
+
+
+        function startBallReveal() {
+            showKaijiangHtml();
+
+            // 将倒计时显示为 "开奖中"
+            $('#djs').text('开奖中');
+
+            // 开始轮询后端，获取已揭晓的号码
+            pollAvailableBalls();
+        }
+
+
+        function showKaijiangHtml() {
+            $("#jingtaihtml").html(`
     <div class="kj-lotto-box">
       <ul>
         <li><span class="p redBoClass" id="nowball0">澳<br>与</span></li>
@@ -556,43 +582,43 @@ function showAvailableBalls(data) {
       </ul>
     </div>
   `);
-            }
+        }
 
-            function countDown(endTime, element, onComplete) {
-                if (timer) {
+        function countDown(endTime, element, onComplete) {
+            if (timer) {
+                clearInterval(timer);
+            }
+            var endDate = new Date(endTime);
+
+            function updateTimer() {
+                var now = Date.now();
+                var distance = endDate - now;
+
+                if (distance <= 0) {
                     clearInterval(timer);
-                }
-                var endDate = new Date(endTime);
-
-                function updateTimer() {
-                    var now = Date.now();
-                    var distance = endDate - now;
-
-                    if (distance <= 0) {
-                        clearInterval(timer);
-                        if (typeof onComplete === 'function') {
-                            onComplete();
-                        }
-                        return;
+                    if (typeof onComplete === 'function') {
+                        onComplete();
                     }
-
-                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    $(element).html(`倒计时 <span class="hour">${padZero(hours)}</span>:<span class="minute">${padZero(minutes)}</span>:<span class="second">${padZero(seconds)}</span>`);
+                    return;
                 }
 
-                updateTimer();
-                timer = setInterval(updateTimer, 1000);
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                $(element).html(`倒计时 <span class="hour">${padZero(hours)}</span>:<span class="minute">${padZero(minutes)}</span>:<span class="second">${padZero(seconds)}</span>`);
             }
 
+            updateTimer();
+            timer = setInterval(updateTimer, 1000);
+        }
 
-            function padZero(num) {
-                return num < 10 ? '0' + num : num;
-            }
-        });
-    </script>
+
+        function padZero(num) {
+            return num < 10 ? '0' + num : num;
+        }
+    });
+</script>
 
 </body>
 

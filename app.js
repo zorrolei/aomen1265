@@ -9,11 +9,12 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const axios = require('axios');
+const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 
 const app = express();
 const PORT = 3001;
-const SECRET_KEY = 'your_secret_key';
+const SECRET_KEY = 'aB3dE5fG7hI9jK1mN2oP3qR4sT5uV6wXn';
 
 // 初始化 CSRF 保护
 const csrfProtection = csurf({ cookie: true });
@@ -54,7 +55,8 @@ db.run(`
     period TEXT NOT NULL,
     numbers TEXT NOT NULL DEFAULT '[]',
     drawTime TEXT NOT NULL,
-    section TEXT
+    section TEXT,
+    randomZodiacs TEXT
   )
 `, (err) => {
   if (err) {
@@ -159,6 +161,15 @@ function getClassForColor(color) {
       return '';
   }
 }
+// 定义所有生肖
+const allZodiacs = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+
+// 函数：生成随机的6个不重复生肖
+function generateRandomZodiacs(count = 6) {
+  const shuffled = allZodiacs.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
 
 
 // 验证 JWT 的中间件
@@ -265,7 +276,7 @@ app.get('/number-info/:number', authenticateToken, (req, res) => {
   res.json(attributes);
 });
 
-// 添加开奖结果 - 处理所有区域
+
 // 添加开奖结果 - 处理所有区域
 app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
   let { period, numbers, drawTime } = req.body;
@@ -311,18 +322,27 @@ app.post('/dashboard/section/:sectionId', authenticateToken, (req, res) => {
 
   const numbersWithAttributes = numbersArray.map(num => getNumberAttributes(num));
 
+  // 生成6个随机生肖
+  let randomZodiacs
+  try {
+    randomZodiacs = generateRandomZodiacs(6);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+
   // 在数据库中存储区域信息
   db.run(
-    'INSERT INTO records (period, numbers, drawTime, section) VALUES (?, ?, ?, ?)',
-    [period, JSON.stringify(numbersWithAttributes), drawTimeUTC, sectionId],
-    function (err) {
-      if (err) {
-        console.error('数据库写入失败:', err);
-        return res.status(500).send('数据库写入失败');
+      'INSERT INTO records (period, numbers, drawTime, section, randomZodiacs) VALUES (?, ?, ?, ?, ?)',
+      [period, JSON.stringify(numbersWithAttributes), drawTimeUTC, sectionId, JSON.stringify(randomZodiacs)],
+      function (err) {
+        if (err) {
+          console.error('数据库写入失败:', err);
+          return res.status(500).send('数据库写入失败');
+        }
+        console.log(`已插入记录ID=${this.lastID} (区域 ${sectionId})`);
+        res.redirect('/dashboard');
       }
-      console.log(`已插入记录ID=${this.lastID} (区域 ${sectionId})`);
-      res.redirect('/dashboard');
-    }
   );
 });
 
@@ -355,108 +375,127 @@ app.post('/delete-record', authenticateToken, (req, res) => {
 // 最新开奖结果的 API 端点
 app.get('/latest-result', (req, res) => {
   const section = req.query.section || '1';
+  // 使用 UTC 时间进行比较
   const currentTime = new Date();
-
-  db.get('SELECT * FROM records WHERE drawTime <= ? AND section = ? ORDER BY drawTime DESC LIMIT 1', [currentTime.toISOString(), section], (err, currentRecord) => {
-    if (err) {
-      console.error('查询当前记录失败:', err.message);
-      return res.status(500).json({ error: '查询当前记录失败' });
-    }
-
-    if (!currentRecord) {
-      return res.status(404).json({ error: '没有当前记录' });
-    }
-
-    // 查询下一期开奖时间
-    db.get('SELECT drawTime FROM records WHERE drawTime > ? AND section = ? ORDER BY drawTime ASC LIMIT 1', [currentTime.toISOString(), section], (err, nextRow) => {
+  
+  db.get('SELECT * FROM records WHERE drawTime <= ? AND section = ? ORDER BY drawTime DESC LIMIT 1', 
+    [currentTime.toISOString(), section], 
+    (err, currentRecord) => {
       if (err) {
-        console.error('查询下一期开奖时间失败:', err.message);
-        return res.status(500).json({ error: '查询下一期开奖时间失败' });
+        console.error('查询当前记录失败:', err.message);
+        return res.status(500).json({ error: '查询当前记录失败' });
       }
 
-      let numbersWithAttributes = [];
-      try {
-        numbersWithAttributes = JSON.parse(currentRecord.numbers);
-      } catch (e) {
-        console.error('解析号码失败:', e);
+      if (!currentRecord) {
+        return res.status(404).json({ error: '没有当前记录' });
       }
 
-      // 定义每个号码揭晓的时间点（以毫秒为单位）
-      const ballRevealTimes = [120000, 130000, 140000, 150000, 160000, 170000, 180000]; // 每个球的揭晓时间
-      const totalRevealTime = 180000; // 所有球揭晓完的总时间
+      // 查询下一期开奖时间
+      db.get('SELECT drawTime FROM records WHERE drawTime > ? AND section = ? ORDER BY drawTime ASC LIMIT 1',
+        [currentTime.toISOString(), section],
+        (err, nextRow) => {
+          if (err) {
+            console.error('查询下一期开奖时间失败:', err.message);
+            return res.status(500).json({ error: '查询下一期开奖时间失败' });
+          }
 
-      let timeElapsed = currentTime - new Date(currentRecord.drawTime);
+          let numbersWithAttributes = [];
+          try {
+            numbersWithAttributes = JSON.parse(currentRecord.numbers);
+          } catch (e) {
+            console.error('解析号码失败:', e);
+          }
 
-      // 定义未揭晓的号码需要显示的特殊文字
-      const specialWords = [
-        '澳<br>与',
-        '门<br>官',
-        '全<br>方',
-        '民<br>网',
-        '彩<br>同',
-        '开<br>步',
-        '奖<br>中'
-      ];
+          const ballRevealTimes = [120000, 130000, 140000, 150000, 160000, 170000, 180000]; // 每个球的揭晓时间
+          const totalRevealTime = 180000; // 所有球揭晓完的总时间
 
-      // 准备返回的数据
-      const data = {};
-      for (let i = 0; i < 7; i++) {
-        const item = numbersWithAttributes[i];
-        const num = item ? item.number : '';
-        const className = item ? getClassForColor(item.color) : '';
+          // 解析数据库中的时间为 Date 对象
+          const drawDate = new Date(currentRecord.drawTime);
+          // 计算已过去的时间（毫秒）
+          const timeElapsed = currentTime.getTime() - drawDate.getTime();
 
-        if (timeElapsed >= ballRevealTimes[i]) {
-          // 已揭晓的号码
-          data[i + 1] = {
-            tit: num,
-            wx: item.element || '',
-            tit0: item.zodiac || '',
-            class: className,
-            isRevealed: true
-          };
-        } else {
-          // 未揭晓的号码，返回特殊文字
-          data[i + 1] = {
-            specialWord: specialWords[i],
-            class: 'redBoClass',
-            isRevealed: false
-          };
-        }
-      }
+          const specialWords = [
+            '澳<br>与',
+            '门<br>官',
+            '全<br>方',
+            '民<br>网',
+            '彩<br>同',
+            '开<br>步',
+            '奖<br>中'
+          ];
 
-      // 确定状态和倒计时时间
-      let status;
-      let countdownTime;
+          const data = {};
+          for (let i = 0; i < 7; i++) {
+            const item = numbersWithAttributes[i];
+            const num = item ? item.number : '';
+            const className = item ? getClassForColor(item.color) : '';
 
-      if (timeElapsed < 0) {
-        status = 'countdown'; // 倒计时阶段
-        countdownTime = new Date(currentRecord.drawTime).getTime();
-      } else if (timeElapsed >= 0 && timeElapsed < totalRevealTime) {
-        status = 'drawing'; // 正在开奖
-        countdownTime = null; // 不需要倒计时
-      } else {
-        status = 'finished'; // 开奖结束
-        if (nextRow) {
-          countdownTime = new Date(nextRow.drawTime).getTime();
-        } else {
-          // 如果没有下一期开奖时间，设置倒计时为24小时后
-          countdownTime = currentTime.getTime() + 24 * 3600 * 1000;
-        }
-      }
+            if (timeElapsed >= ballRevealTimes[i]) {
+              // 已揭晓的号码
+              data[i + 1] = {
+                tit: num,
+                wx: item.element || '',
+                tit0: item.zodiac || '',
+                class: className,
+                isRevealed: true
+              };
+            } else {
+              // 未揭晓的号码，返回特殊文字
+              data[i + 1] = {
+                specialWord: specialWords[i],
+                class: 'redBoClass',
+                isRevealed: false
+              };
+            }
+          }
 
-      res.json({
-        current: {
-          period: currentRecord.period,
-          drawTime: new Date(currentRecord.drawTime).getTime(),
-          data: data
-        },
-        status: status,
-        countdown: countdownTime,
-        serverTime: currentTime.getTime()
-      });
+          // 确定状态和倒计时时间
+          let status;
+          let countdownTime;
+
+          if (timeElapsed < 0) {
+            // 还未到开奖时间
+            status = 'countdown';
+            countdownTime = drawDate.getTime();
+          } else if (timeElapsed >= 0 && timeElapsed < totalRevealTime) {
+            // 正在开奖中
+            status = 'drawing';
+            countdownTime = null;
+          } else {
+            // 开奖已结束，准备下一期
+            status = 'finished';
+            if (nextRow) {
+              const nextDrawTime = new Date(nextRow.drawTime);
+              countdownTime = nextDrawTime.getTime();
+            } else {
+              // 如果没有下一期记录，设置为24小时后
+              const nextDay = new Date(currentTime);
+              nextDay.setDate(nextDay.getDate() + 1);
+              countdownTime = nextDay.getTime();
+            }
+          }
+
+          // 返回响应时包含更多的时间信息以便调试
+          res.json({
+            current: {
+              period: currentRecord.period,
+              drawTime: drawDate.toISOString(),
+              data: data
+            },
+            status: status,
+            countdown: countdownTime,
+            serverTime: currentTime.getTime(),
+            debug: {
+              currentTimeISO: currentTime.toISOString(),
+              drawTimeISO: drawDate.toISOString(),
+              timeElapsed: timeElapsed,
+              timeElapsedMinutes: Math.floor(timeElapsed / (1000 * 60))
+            }
+          });
+        });
     });
-  });
 });
+
 
 
 
@@ -468,10 +507,10 @@ app.get('/history', (req, res) => {
 
   const currentTime = new Date();
 
-  // 查询指定分类的最后一条已开奖的记录（drawTime <= currentTime）
+  // 查询指定分类的最后一条已开奖的记录（drawTime <= currentTime
   db.get('SELECT * FROM records WHERE drawTime <= ? AND section = ? ORDER BY drawTime DESC LIMIT 1', [currentTime.toISOString(), section], (err, lastRecord) => {
     if (err) {
-      console.error('查询最后一条记录失败:', err.message);
+      // console.error('查询最后一条记录失败:', err.message);
       return res.status(500).json({ error: '查询最后一条记录失败' });
     }
 
@@ -562,165 +601,173 @@ app.get('/history', (req, res) => {
   });
 });
 
+// 6肖6码接口 端点：获取前4条历史记录和当前记录
+app.get('/combined-data', authenticateToken, (req, res) => {
+  const section = req.query.section || '1';
+  const currentTime = new Date();
 
-const BASE_URL = 'http://xin1265.com'; // 源网站的基准 URL
+  // 获取当前记录
+  db.get('SELECT * FROM records WHERE drawTime <= ? AND section = ? ORDER BY drawTime DESC LIMIT 1',
+      [currentTime.toISOString(), section],
+      (err, currentRecord) => {
+        if (err) {
+          console.error('查询当前记录失败:', err.message);
+          return res.status(500).json({ error: '查询当前记录失败' });
+        }
+
+        if (!currentRecord) {
+          return res.status(404).json({ error: '没有当前记录' });
+        }
+
+        // 获取前4条历史记录（除当前记录）
+        db.all('SELECT * FROM records WHERE section = ? AND id < ? ORDER BY id DESC LIMIT 4',
+            [section, currentRecord.id],
+            (err, historicalRecords) => {
+              if (err) {
+                console.error('查询历史记录失败:', err.message);
+                return res.status(500).json({ error: '查询历史记录失败' });
+              }
+
+              // 解析当前记录的随机生肖
+              let currentRandomZodiacs = [];
+              try {
+                currentRandomZodiacs = JSON.parse(currentRecord.randomZodiacs);
+                if (!Array.isArray(currentRandomZodiacs)) throw new Error();
+              } catch (e) {
+                console.error('解析 currentRecord.randomZodiacs 失败:', e);
+                currentRandomZodiacs = [];
+              }
+
+              // 解析历史记录的随机生肖和开奖号码
+              const parsedHistoricalRecords = historicalRecords.map(record => {
+                let randomZodiacs = [];
+                try {
+                  randomZodiacs = JSON.parse(record.randomZodiacs);
+                  if (!Array.isArray(randomZodiacs)) throw new Error();
+                } catch (e) {
+                  console.error(`解析 record.id=${record.id} 的 randomZodiacs 失败:`, e);
+                  randomZodiacs = [];
+                }
+
+                let lastNumber = '';
+                try {
+                  const numbers = JSON.parse(record.numbers);
+                  if (Array.isArray(numbers) && numbers.length > 0) {
+                    const last = numbers[numbers.length - 1];
+                    lastNumber = `${last.zodiac}${last.number}`;
+                  }
+                } catch (e) {
+                  console.error(`解析 record.id=${record.id} 的 numbers 失败:`, e);
+                  lastNumber = '';
+                }
+
+                return {
+                  period: record.period,
+                  randomZodiacs: randomZodiacs.slice(0, 6), // 前4个随机生肖
+                  lastNumber: lastNumber
+                };
+              });
+
+              // 解析当前记录的开奖状态
+              let status;
+              let countdownTime;
+
+              const timeElapsed = currentTime.getTime() - new Date(currentRecord.drawTime).getTime();
+              const totalRevealTime = 180000; // 所有球揭晓完的总时间
+
+              if (timeElapsed < 0) {
+                status = 'countdown';
+                countdownTime = new Date(currentRecord.drawTime).getTime();
+              } else if (timeElapsed >= 0 && timeElapsed < totalRevealTime) {
+                status = 'drawing';
+                countdownTime = null;
+              } else {
+                status = 'finished';
+                countdownTime = null;
+              }
+
+              // 获取当前记录的最后一个号码
+              let currentLastNumber = '';
+              if (status === 'finished') {
+                if (currentRecord.numbers) {
+                  try {
+                    const numbers = JSON.parse(currentRecord.numbers);
+                    if (Array.isArray(numbers) && numbers.length > 0) {
+                      const last = numbers[numbers.length - 1];
+                      currentLastNumber = `${last.zodiac}${last.number}`;
+                    }
+                  } catch (e) {
+                    console.error('解析 currentRecord.numbers 失败:', e);
+                  }
+                }
+              }
+
+              res.json({
+                historical: parsedHistoricalRecords, // 前4条历史记录
+                current: {
+                  period: currentRecord.period,
+                  randomZodiacs: currentRandomZodiacs, // 当前记录的6个随机生肖
+                  drawStatus: status === 'finished' ? `开:${currentLastNumber}准` : '开:？00准'
+                },
+                countdown: countdownTime
+              });
+            });
+      });
+});
+
+
 // 抓取目标网页内容
 app.get('/fetch-content', async (req, res) => {
   try {
-    const response = await axios.get('http://xin1265.com/');
-    const $ = cheerio.load(response.data);
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-    // 抓取目标内容
-    let targetContent = $('.cgi-body').html(); // 根据实际情况选择目标部分
+    // 模拟浏览器访问目标网站
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36');
+    await page.goto('http://www.hk8123.com/', { waitUntil: 'networkidle2' });
 
-    if (targetContent) {
-      const replacements = [
-        { pattern: /新日头条/g, replacement: '澳门全民彩' },
-        { pattern: /http:\/\/1\.xinxincc\.xyz\/kai\.html/g, replacement: 'kai\/tab.html' },
-        { pattern: /香港新日彩/g, replacement: '澳门全民彩' },
-        { pattern: /xin1265.com/g, replacement: 'aomen1265.com' }
-      ];
+    // 获取渲染后的 HTML 内容
+    const content = await page.content();
+    await browser.close();
 
+    // 使用 Cheerio 解析 HTML
+    const $ = cheerio.load(content);
 
-
-      replacements.forEach(({ pattern, replacement }) => {
-        targetContent = targetContent.replace(pattern, replacement);
-      });
-      // 4. 使用 Cheerio 解析替换后的 HTML
-      const $content = cheerio.load(targetContent);
-
-      // 5. 移除所有 <a> 标签的 href 属性
-      $content('a[href^="cat/"]').each((i, elem) => {
-        const hrefValue = $content(elem).attr('href');
-        if (/^cat\/\d+$/.test(hrefValue)) {
-          // 方法一：移除 href 属性，使其不可点击
-          $content(elem).removeAttr('href');
-
-        }
-      });
-
-      // 移除具有 class="zzhl" 的元素
-      $content('.zzhl').remove();
-
-      // 移除高手榜图片
-      $content('img').each((i, elem) => {
-        const src = $content(elem).attr('src');
-        const className = $content(elem).attr('class');
-        if (src === '/images/10009.jpg' && className?.includes('lazyloaded')) {
-          $content(elem).remove();
-          console.log(`Removed image with src="/images/10009.jpg" and class="lazyloaded"`);
-        }
-      });
-
-      // 修改导航栏中的 <a> 标签：将 value 属性替换为 href 属性
-      $content('#nav2 a').each((i, elem) => {
-        const value = $content(elem).attr('value');
-        if (value) {
-          $content(elem).attr('href', value); // 设置新的 href 属性
-          $content(elem).removeAttr('value'); // 移除旧的 value 属性
-          console.log(`Replaced value="${value}" with href="${value}" in <a> tag`);
-        }
-      });
-
-      
-      // **交换特定 <li> 元素的位置**
-      const li1 = $content('a[href="#1x1m"]').parent();
-      const li2 = $content('a[href="#jy4x"]').parent();
-
-      if (li1.length && li2.length) {
-        // 创建临时占位符
-        const placeholder = $content('<li></li>');
-        li1.before(placeholder);
-        li2.before(li1);
-        placeholder.replaceWith(li2);
-        console.log('Swapped <li> elements: "一肖一码" and "六肖中特"');
-      } else {
-        console.warn('未找到需要交换的 <li> 元素');
+    // 修改 <script> 标签的 src 属性
+    $('script').each(function () {
+      let scriptSrc = $(this).attr('src');
+      if (scriptSrc && !scriptSrc.startsWith('http')) { // 检查是否为相对路径
+        $(this).attr('src', 'http://www.hk8123.com/' + scriptSrc); // 添加前缀
       }
+    });
 
-    // **处理块 A 和块 B 的交换**
-      // 1. 获取块 A: 父级 <div> 的 id="wuxiao"
-      const originalBlockA = $content('#wuxiao').parent();
-      if (!originalBlockA.length) {
-        console.warn('未找到 id="wuxiao" 的父级 <div>');
+    // 修改 <iframe> 的高度
+    $('iframe').each(function () {
+      let iframeSrc = $(this).attr('src');
+      if (iframeSrc === 'kj.php') { // 检查 src 是否为 'kai/tab.html'
+        $(this).attr('src', 'kai/tab.html'); // 替换为 kai/tab.html
+        $(this).attr('height', '160'); // 修改 height 属性为 160
       }
+    });
 
-      // 2. 获取块 B:
-      //    a. 包含文字“澳门全民彩《六肖中特》”的最上级 <table>
-      //    b. 紧挨着该 <table> 的 <div>
-      const targetText = '澳门全民彩《六肖中特》';
-
-      // 查找包含目标文字的 <table>
-      const blockBTable = $content('table').filter(function () {
-        return $content(this).text().includes(targetText);
-      }).first();
-
-      if (!blockBTable.length) {
-        console.warn(`未找到包含文字 "${targetText}" 的 <table> 标签`);
+    // 修改 iframe 的 src URL
+    $('iframe').each(function () {
+      let iframeSrc = $(this).attr('src');
+      if (iframeSrc === 'https://zhibo.chong0123.com:777/hk.html') { // 检查是否为指定的 URL
+        $(this).attr('src', 'kai/tab.html'); // 替换为新 URL
       }
+    });
 
-      // 查找紧接在该 <table> 后面的 <div>
-      const blockBDiv = blockBTable.next('div');
-      if (!blockBDiv.length) {
-        console.warn(`未找到 <table> 标签 "${targetText}" 之后的紧接 <div> 标签`);
-      }
+    // 获取修改后的 HTML 内容
+    const updatedContent = $.html();
 
-      // 3. 处理块 A
-      if (originalBlockA.length) {
-        // 给块 A 添加新的 ID="1x1m"
-        originalBlockA.attr('id', '1x1m');
-        console.log('为块 A 添加了新的 ID="1x1m"');
-
-        // 移除页面上原先拥有 ID="1x1m" 的元素，排除当前块 A
-        $content('#1x1m').not(originalBlockA).remove();
-        console.log('移除了原先拥有 ID="1x1m" 的元素');
-      }
-
-      // 4. 处理块 B
-      if (blockBTable.length && blockBDiv.length) {
-        // 给块 B 的 <table> 添加新的 ID="jy4x"
-        blockBTable.attr('id', 'jy4x');
-        console.log('为块 B 的 <table> 添加了新的 ID="jy4x"');
-
-        // 移除页面上原先拥有 ID="jy4x" 的元素，排除当前块 B 的 <table>
-        $content('#jy4x').not(blockBTable).remove();
-        console.log('移除了原先拥有 ID="jy4x" 的元素');
-      }
-
-      // 5. 交换块 A 和块 B 的位置
-      if (originalBlockA.length && blockBTable.length && blockBDiv.length) {
-        // 创建占位符来保存块 A 的位置
-        const placeholder = $content('<div></div>');
-        originalBlockA.before(placeholder);
-
-        // 移动块 B 的 <table> 和 <div> 到块 A 的位置
-        blockBTable.insertBefore(placeholder);
-        blockBDiv.insertBefore(placeholder);
-
-        // 移动块 A 到块 B 的原位置
-        placeholder.before(originalBlockA);
-
-        // 移除占位符
-        placeholder.remove();
-
-        console.log('Swapped Block A (id="1x1m") with Block B (id="jy4x" and adjacent div)');
-      } else {
-        console.warn('未找到需要交换的块 A 或块 B');
-      }
-
-
-
-      // 6. 获取最终的 HTML 内容
-      targetContent = $content.html();
-    }
-
-    res.send(targetContent);
+    // 返回修改后的内容
+    res.send(updatedContent);
   } catch (error) {
     console.error('Error fetching content:', error.message);
     res.status(500).send('Error fetching content');
   }
 });
-
 
 
 
