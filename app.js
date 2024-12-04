@@ -917,7 +917,9 @@ app.get('/fetch-history2', async (req, res) => {
     // 启动 Puppeteer 浏览器
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      // executablePath: '/usr/bin/google-chrome' // 服务器配置此路径
+
     });
     const page = await browser.newPage();
 
@@ -948,7 +950,9 @@ app.get('/fetch-history3', async (req, res) => {
     // 启动 Puppeteer 浏览器
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      // executablePath: '/usr/bin/google-chrome' // 服务器配置此路径
+
     });
     const page = await browser.newPage();
 
