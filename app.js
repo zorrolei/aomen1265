@@ -737,6 +737,8 @@ app.get('/fetch-content', async (req, res) => {
         { pattern: /xin1265.com/g, replacement: 'aomen1265.com' }
       ];
 
+
+
       replacements.forEach(({ pattern, replacement }) => {
         targetContent = targetContent.replace(pattern, replacement);
       });
@@ -872,7 +874,7 @@ app.get('/fetch-content', async (req, res) => {
           const iframe = $('<iframe></iframe>')
               .attr('src', 'kai/6xiao.html') // 替换为实际的 iframe 源地址
               .attr('width', '100%') // 根据需要设置宽度
-              .attr('height', '330') // 根据需要设置高度
+              .attr('height', '411') // 根据需要设置高度
               .attr('frameborder', '0'); // 可选属性
 
           // 用 <iframe> 替换原有的 <div>
@@ -885,23 +887,17 @@ app.get('/fetch-content', async (req, res) => {
         console.warn('未找到唯一的 id="jy4x" 元素');
       }
 
-      // **移除交换后的块 B**
-      // 由于块 B 已经被交换到块 A 的原位置，我们需要移除块 B 的新位置
-      // 假设块 B 的 <table> 现在位于块 A 的原位置，并且块 B 的 <div> 已经被替换或移除
-      // 根据具体情况调整以下代码
+      // 查找 header 中的图片并修改
+      $('header.cgi-head-home img').each(function () {
+        const imgSrc = $(this).attr('src');
+        console.log(`Found image src: ${imgSrc}`); // 输出调试信息
 
-      // 如果块 B 的 <div> 已经被替换为 <iframe>，无需额外移除
-      // 如果块 B 的 <div> 仍然存在，且需要移除，可以执行以下操作：
-
-      /*
-      const blockBNewDiv = $content('#jy4x').next('div');
-      if (blockBNewDiv.length) {
-        blockBNewDiv.remove();
-        console.log('已移除交换后块 B 的 <div> 元素');
-      } else {
-        console.warn('未找到交换后块 B 的紧接 <div> 元素');
-      }
-      */
+        // 检查是否为目标图片
+        if (imgSrc && imgSrc === '/images/10001.jpg') {
+          $(this).attr('width', '100%'); // 添加 width="10%"
+          console.log(`Added width="100%" to image with src="/images/10001.jpg"`);
+        }
+      });
 
       // **获取最终的 HTML 内容**
       targetContent = $content.html();
@@ -915,7 +911,67 @@ app.get('/fetch-content', async (req, res) => {
 });
 
 
+// 抓取历史记录2
+app.get('/fetch-history2', async (req, res) => {
+  try {
+    // 启动 Puppeteer 浏览器
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
 
+    // 访问目标网站
+    await page.goto('https://kj.123pmz.com/kj/', { waitUntil: 'networkidle2' });
+
+
+    // 获取 class="cgi-wrap" 元素的 HTML 内容
+    const content = await page.evaluate(() => {
+      const element = document.querySelector('.cgi-wrap'); // 获取 class="cgi-wrap" 元素
+      return element ? element.innerHTML : ''; // 返回元素的内容，如果没有找到则返回空字符串
+    });
+
+    await browser.close();
+
+    // 返回抓取到的页面内容（你可以选择返回整个 HTML 内容或提取特定部分）
+    res.send(content);  // 或者返回其他处理后的内容
+
+  } catch (error) {
+    console.error('Error fetching content:', error);
+    res.status(500).send('Error fetching content');
+  }
+});
+
+// 抓取历史记录3
+app.get('/fetch-history3', async (req, res) => {
+  try {
+    // 启动 Puppeteer 浏览器
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+
+    // 访问目标网站
+    await page.goto('https://kj.123565.com/kj/', { waitUntil: 'networkidle2' });
+
+
+    // 获取 class="cgi-wrap" 元素的 HTML 内容
+    const content = await page.evaluate(() => {
+      const element = document.querySelector('.cgi-wrap'); // 获取 class="cgi-wrap" 元素
+      return element ? element.innerHTML : ''; // 返回元素的内容，如果没有找到则返回空字符串
+    });
+
+    await browser.close();
+
+    // 返回抓取到的页面内容（你可以选择返回整个 HTML 内容或提取特定部分）
+    res.send(content);  // 或者返回其他处理后的内容
+
+  } catch (error) {
+    console.error('Error fetching content:', error);
+    res.status(500).send('Error fetching content');
+  }
+});
 
 
 // 退出登录

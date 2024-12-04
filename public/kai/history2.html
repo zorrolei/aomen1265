@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>六合彩开奖记录-2024年开奖记录</title>
+    <link rel="stylesheet" href="/static/nine/css/pintuer.css">
+    <link rel="stylesheet" href="/static/nine/trend/css/kj.css">
+    <link rel="stylesheet" href="/static/nine/css/style.css">
+</head>
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        position: fixed;
+        left: 50%;
+
+        margin-left: -400px;
+        background: #f0f0f0;
+        border-bottom: 1px solid #eee;
+        padding: 16px ;
+        z-index: 999;
+        color: #000;
+    }
+
+
+    @media screen and (max-width: 414px) {
+        .navbar {
+            width: 100%;
+            margin: 0 auto;
+            position: fixed;
+            left: 0;
+            right: 0;
+            background: #f0f0f0;
+            border-bottom: 1px solid #eee;
+            padding: 16px 16px;
+            z-index: 999;
+            color: #000;
+        }
+
+
+    }
+</style>
+<body>
+
+<div class="navbar">
+    <a href="../index.html">返回</a>
+</div>
+<div class="cgi-body" style="padding-top: 50px;"></div>
+<script>
+    fetch('/fetch-history2') // 确保使用完整的 URL
+        .then(response => response.text())
+        .then(data => {
+            // 使用 querySelector 获取单个元素
+            const cgiBody = document.querySelector('.cgi-body');
+            if (cgiBody) {
+                cgiBody.innerHTML = data;
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
+</body>
+</html>

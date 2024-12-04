@@ -291,6 +291,68 @@
             padding: 10px;
         }
 
+        #qishu {
+            color: #ff0000;
+        }
+
+        .time {
+            font-size: 14px;
+            margin-top: 10px;
+            background: #FFFFCC;
+            padding: 4px;
+        }
+
+        .tab-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 0px;
+            gap: 8px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 4px 10px;
+            cursor: pointer;
+            background-color: #eee;
+            border-radius: 4px;
+        }
+
+        .tab.active {
+            background-color: #ff0000;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active-content {
+            display: block;
+            padding: 8px;
+            position: relative;
+        }
+        .history2{
+            background: #fff;
+            position: absolute;
+            top: 10px;
+            right: 9px;
+            font-size: 14px;
+            color: #ff0000;
+            padding: 6px 8px;
+        }
+        .history3{
+            background: #fff;
+            position: absolute;
+            top: 130px;
+            right:65px;
+            font-size: 15px;
+            color: #ff0000;
+            padding: 6px 14px;
+            display: block;
+        }
+
         @media screen and (max-width: 414px) {
             .kj-lotto-box > ul > li {
 
@@ -304,6 +366,18 @@
                 border-radius: 6px;
                 box-shadow: 0 0 5px rgba(0, 0, 0, .1);
                 background: linear-gradient(to top, #eee, #fff);
+            }
+            .history3{
+                background: #fff;
+                /*position: absolute;*/
+                top: 115px;
+                right:58px;
+                font-size: 15px;
+                color: #ff0000;
+                padding: 6px 14px;
+                display: block;
+                z-index: 99999;
+                pointer-events: auto;
             }
 
         }
@@ -319,16 +393,15 @@
             <div class="tab" data-section="3">香港六合彩</div>
         </div>
 
-        <div
-                style="display: flex; align-items: center; margin-bottom: 16px; font-size: 14px; justify-content: space-between;">
-            <div>当前第 <span id="qishu"></span> 期</div>
-            <span id="djs">倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span
-                    class="second">00</span></span>
-            <div><a href="history.html?section=1" class="history-link" target="_blank">历史记录</a>></div>
+
+    </div>
+    <div id="section-1" class="tab-content active-content">
+        <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; justify-content: space-between; background: #FFFFCC; padding: 4px;">
+            <div>澳门全民彩 第 <span id="qishu"></span> 期</div>
+            <div><a href="history.html?section=1" class="history-link" target="_blank">历史记录</a></div>
         </div>
 
         <div class="kj-lotto-box" id="jingtaihtml" style="display: flex; align-items: center;">
-
             <ul>
                 <li><span class="p" id="nowball0">00</span></li>
                 <li><span class="p" id="nowball1">00</span></li>
@@ -340,8 +413,19 @@
                 <li><span class="p" id="nowball6">00</span></li>
             </ul>
         </div>
+        <div class="time">
+            <span>下期开奖时间</span>
+            <span id="djs">倒计时 </span>
+        </div>
     </div>
-
+    <div id="section-2" class="tab-content">
+        <a href="history2.html" target="_top" class="history2">历史记录</a>
+        <iframe class="KJ-IFRAME" src="https://zhibo.2020kj.com:777/" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
+    </div>
+    <div id="section-3" class="tab-content">
+        <a href="history3.html" target="_top" class="history3">历史记录</a>
+        <iframe class="KJ-IFRAME" src="https://zhibo.chong0123.com:777/" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
+    </div>
 
 </main>
 
@@ -368,29 +452,18 @@
 
         function bindTabEvents() {
             $('.tab').click(function () {
+                // 取消所有选项卡的激活状态
                 $('.tab').removeClass('active');
+                $('.tab-content').removeClass('active-content');
+
+                // 激活当前选项卡
                 $(this).addClass('active');
 
-                // 获取选中的 section
-                currentSection = $(this).data('section').toString();
+                // 获取选中的 section ID
+                const sectionId = $(this).data('section');
 
-                // 重置倒计时和标志位
-                startDjs = 0;
-                currentPeriod = '';
-
-                // 清除之前的轮询计时器
-                if (pollTimer) {
-                    clearTimeout(pollTimer);
-                }
-
-                // 清空倒计时显示
-                $('#djs').html('倒计时 <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">00</span>');
-
-                // 更新历史记录链接的 section 参数
-                $('a.history-link').attr('href', 'history.html?section=' + currentSection);
-
-                // 获取并显示选中分类的数据
-                getBall(currentSection);
+                // 显示对应的内容区
+                $('#section-' + sectionId).addClass('active-content');
             });
         }
 
@@ -617,6 +690,8 @@
         function padZero(num) {
             return num < 10 ? '0' + num : num;
         }
+
+
     });
 </script>
 
