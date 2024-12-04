@@ -757,7 +757,7 @@ app.get('/fetch-content', async (req, res) => {
 
       // 移除具有 class="zzhl" 的元素
       $content('.zzhl').remove();
-
+      $content('img[src="https://https.50234.site/static/home/new/images/jc.png"]').remove();
       // 移除高手榜图片
       $content('img').each((i, elem) => {
         const src = $content(elem).attr('src');
