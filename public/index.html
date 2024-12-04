@@ -19,61 +19,28 @@
             background-color: #FFFFFF
         }
 
-        a {
-            text-decoration: none;
-            cursor: pointer;
-            color: #333
-        }
 
-        html,
-        body {
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            min-height: 100%;
-            font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        ul li {
-            list-style: none;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border-spacing: 0;
-        }
-
-        img {
-            max-width: 100%;
-        }
-
-        td,
-        th {
-            border: 1px solid #DDD;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 
-<body id="container">
-    <script>
-        fetch('/fetch-content') // 确保使用完整的 URL
-            .then(response => response.text())
-            .then(data => {
-                // 使用 querySelector 获取单个元素
-                const cgiBody = document.querySelector('#container');
-                if (cgiBody) {
-                    cgiBody.innerHTML = data;
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    </script>
-    
+<body>
+<div class="cgi-body"></div>
+<script>
+    fetch('/fetch-content') // 确保使用完整的 URL
+        .then(response => response.text())
+        .then(data => {
+            // 使用 querySelector 获取单个元素
+            const cgiBody = document.querySelector('.cgi-body');
+            if (cgiBody) {
+                cgiBody.innerHTML = data;
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
 </body>
 
 </html>
