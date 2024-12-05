@@ -874,7 +874,7 @@ app.get('/fetch-content', async (req, res) => {
           const iframe = $('<iframe></iframe>')
               .attr('src', 'kai/6xiao.html') // 替换为实际的 iframe 源地址
               .attr('width', '100%') // 根据需要设置宽度
-              .attr('height', '411') // 根据需要设置高度
+              .attr('height', '397') // 根据需要设置高度
               .attr('frameborder', '0'); // 可选属性
 
           // 用 <iframe> 替换原有的 <div>
@@ -896,6 +896,17 @@ app.get('/fetch-content', async (req, res) => {
         if (imgSrc && imgSrc === '/images/10001.jpg') {
           $(this).attr('width', '100%'); // 添加 width="10%"
           console.log(`Added width="100%" to image with src="/images/10001.jpg"`);
+        }
+      });
+
+      // 选择所有<img>标签
+      const targetImageSrc = 'https://d31q194n7fpdes.cloudfront.net/mygai/tp/49tk/chrome.gif';
+
+      $('img').each((index, element) => {
+        const src = $(element).attr('src');
+        if (src === targetImageSrc) {
+          $(element).remove();
+          console.log(`已移除图片: ${src}`);
         }
       });
 
