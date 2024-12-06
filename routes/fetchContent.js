@@ -169,7 +169,7 @@ async function fetchContentWithCache(url, cacheKey) {
                     const iframe = $content('<iframe></iframe>')
                         .attr('src', 'kai/6xiao.html') // 替换为实际的 iframe 源地址
                         .attr('width', '100%') // 根据需要设置宽度
-                        .attr('height', '397') // 根据需要设置高度
+                        .attr('height', '411') // 根据需要设置高度
                         .attr('frameborder', '0'); // 可选属性
 
                     // 用 <iframe> 替换原有的 <div>

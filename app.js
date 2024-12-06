@@ -611,7 +611,7 @@ app.get('/combined-data', (req, res) => {
     SELECT * FROM records
     WHERE drawTime <= ? AND section = ?
     ORDER BY drawTime DESC
-      LIMIT 10
+      LIMIT 9
   `;
 
   db.all(historicalQuery, [currentTime.toISOString(), section], (err, historicalRecords) => {
